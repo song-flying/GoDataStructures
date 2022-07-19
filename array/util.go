@@ -25,7 +25,7 @@ func copyArray(a []int, n int) (result []int) {
 	}()
 	result = make([]int, n)
 	for i := 0; i < n; i++ {
-		assertion.Invariant(0 <= i && i < n, "0 <= i < n")
+		assertion.Invariant(0 <= i && i <= n, "0 <= i <= n")
 		result[i] = a[i]
 	}
 
@@ -40,8 +40,8 @@ func subArray(a []int, low, high int) (result []int) {
 
 	result = make([]int, high-low)
 	for i, j := low, 0; i < high; i++ {
-		assertion.Invariant(low <= i && i < high, "low <= i < high")
-		assertion.Invariant(0 <= j && j < high-low, "0 <= j < high - low")
+		assertion.Invariant(low <= i && i <= high, "low <= i <= high")
+		assertion.Invariant(0 <= j && j <= high-low, "0 <= j <= high - low")
 		assertion.Invariant(j-0 == i-low, "j - 0 = i - low")
 		result[j] = a[i]
 		j++
@@ -56,8 +56,8 @@ func copyInto(src []int, i, n int, dst []int, j int) int {
 
 	var k, l = i, j
 	for ; k < i+n; k, l = k+1, l+1 {
-		assertion.Invariant(i <= k && k < i+n, "i <= k < i+n")
-		assertion.Invariant(j <= l && l < j+n, "j <= l < j+n")
+		assertion.Invariant(i <= k && k <= i+n, "i <= k <= i+n")
+		assertion.Invariant(j <= l && l <= j+n, "j <= l <= j+n")
 		assertion.Invariant(k-i == l-j, "k-i == l-j")
 		dst[l] = src[k]
 	}
