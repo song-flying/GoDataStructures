@@ -4,31 +4,31 @@ import "fmt"
 
 func Require(b bool, msg string) {
 	if !b {
-		panic(msg)
+		panic("pre-condition violation: " + msg)
 	}
 }
 
 func Requiref(b bool, msg string, args ...any) {
 	if !b {
-		panic(fmt.Sprintf("precondition violation: "+msg, args))
+		panic(fmt.Sprintf("pre-condition violation: "+msg, args))
 	}
 }
 
 func Ensure(b bool, msg string) {
 	if !b {
-		panic(msg)
+		panic("post-condition violation: " + msg)
 	}
 }
 
 func Ensuref(b bool, msg string, args ...any) {
 	if !b {
-		panic(fmt.Sprintf("postcondition violation: "+msg, args...))
+		panic(fmt.Sprintf("post-condition violation: "+msg, args...))
 	}
 }
 
 func Invariant(b bool, msg string) {
 	if !b {
-		panic(msg)
+		panic("invariant violation: " + msg)
 	}
 }
 
