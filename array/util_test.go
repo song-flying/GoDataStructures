@@ -54,14 +54,17 @@ func Test_copyInto(t *testing.T) {
 	c := copyArray(b, len(b))
 	d := copyArray(b, len(b))
 
-	copyInto(a, 0, 0, b, 1)
+	i := copyInto(a, 0, 0, b, 1)
 	assert.Equal(t, []int{0, 0, 0, 0, 0}, b)
+	assert.Equal(t, -1, i)
 
-	copyInto(a, 0, 2, c, 1)
+	i = copyInto(a, 0, 2, c, 1)
 	assert.Equal(t, []int{0, 1, 2, 0, 0}, c)
+	assert.Equal(t, 2, i)
 
-	copyInto(a, 4, 1, d, 0)
+	i = copyInto(a, 4, 1, d, 0)
 	assert.Equal(t, []int{5, 0, 0, 0, 0}, d)
+	assert.Equal(t, 0, i)
 
 	assert.Panics(t, func() {
 		copyInto(a, 4, 2, d, 0)

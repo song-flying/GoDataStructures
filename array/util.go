@@ -22,27 +22,47 @@ func copyArray(a []int, n int) (result []int) {
 	assertion.Require(n == len(a), "len(a) = n")
 	defer func() {
 		assertion.Ensure(len(result) == n, "len(result) = n")
+		assertion.Ensure(same(a, 0, n, result, 0, n), "a[0,n) = result[0,n)")
 	}()
 	result = make([]int, n)
 	for i := 0; i < n; i++ {
 		assertion.Invariant(0 <= i && i <= n, "0 <= i <= n")
+		assertion.Invariant(same(a, 0, i, result, 0, i), "result[0,i] = a[0,i]")
 		result[i] = a[i]
 	}
 
 	return
 }
 
+func same(a []int, lowA, highA int, b []int, lowB, highB int) bool {
+	assertion.Require(0 <= lowA && lowA <= highA && highA <= len(a), "a's low and high within bound")
+	assertion.Require(0 <= lowB && lowB <= highB && highB <= len(a), "b's low and high within bound")
+	assertion.Require(highA-lowA == highB-lowB, "a and b's segment's length are the same")
+
+	for i, j := lowA, lowB; i < highA; i, j = i+1, j+1 {
+		assertion.Invariant(lowA <= i && i <= highA, "i is within bound")
+		assertion.Invariant(lowB <= j && j <= highB, "j is within bound")
+		assertion.Invariant(i-lowA == j-lowB, "i - lowA = j - lowB")
+		if a[i] != b[j] {
+			return false
+		}
+	}
+
+	return true
+}
+
 func subArray(a []int, low, high int) (result []int) {
-	assertion.Require(0 <= low && low <= high && high <= len(a), "0 <= low <= high <= len(a)")
+	assertion.Require(0 <= low && low <= high && high <= len(a), "low & high are in range")
 	defer func() {
-		assertion.Ensure(len(result) == high-low, "len(result) = high - low")
+		assertion.Ensure(same(a, low, high, result, 0, len(result)), "result[0, len) = a[low,high)")
 	}()
 
 	result = make([]int, high-low)
 	for i, j := low, 0; i < high; i++ {
-		assertion.Invariant(low <= i && i <= high, "low <= i <= high")
-		assertion.Invariant(0 <= j && j <= high-low, "0 <= j <= high - low")
-		assertion.Invariant(j-0 == i-low, "j - 0 = i - low")
+		assertion.Invariant(low <= i && i <= high, "i is within bound")
+		assertion.Invariant(0 <= j && j <= high-low, "j is within bound")
+		assertion.Invariant(j-0 == i-low, "i and j moves at same speed")
+		assertion.Invariant(same(a, low, i, result, 0, j), "result[0,j] = a[low,i]")
 		result[j] = a[i]
 		j++
 	}
@@ -50,17 +70,27 @@ func subArray(a []int, low, high int) (result []int) {
 	return
 }
 
-func copyInto(src []int, i, n int, dst []int, j int) int {
-	assertion.Require(0 <= i && 0 <= n && i+n <= len(src), "0 <= i && 0 <= n && i+n <= len(src)")
-	assertion.Require(0 <= j && j+n <= len(dst), "0 <= j && j + n <= len(dst)")
+func copyInto(src []int, i, n int, dst []int, j int) (result int) {
+	assertion.Require(0 <= n, "n >= 0")
+	assertion.Require(0 <= i && i+n <= len(src), "0 <= i && i+n <= len(src)")
+	assertion.Require(0 <= j && j+n <= len(dst), "0 <= j && j+n <= len(dst)")
+	defer func() {
+		assertion.Ensure(same(src, i, i+n, dst, j, j+n), "src[i, i+n) = dst[j,j+n)")
+		assertion.Ensure(n == 0 && (result == -1) || n > 0 && (result == j+n-1), "result OK")
+	}()
+
+	if n == 0 {
+		return -1
+	}
 
 	var k, l = i, j
 	for ; k < i+n; k, l = k+1, l+1 {
 		assertion.Invariant(i <= k && k <= i+n, "i <= k <= i+n")
 		assertion.Invariant(j <= l && l <= j+n, "j <= l <= j+n")
 		assertion.Invariant(k-i == l-j, "k-i == l-j")
+		assertion.Invariant(same(src, i, k, dst, j, l), "src[i,k] = dst[j,l]")
 		dst[l] = src[k]
 	}
 
-	return k
+	return l - 1
 }
