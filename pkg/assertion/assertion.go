@@ -37,3 +37,9 @@ func Invariantf(b bool, msg string, args ...any) {
 		panic(fmt.Sprintf("invariant violation: "+msg, args...))
 	}
 }
+
+func Check(b bool, msg string) {
+	if !b {
+		panic("assertion violation: " + msg)
+	}
+}

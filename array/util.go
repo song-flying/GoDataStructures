@@ -94,3 +94,49 @@ func copyInto(src []int, i, n int, dst []int, j int) (result int) {
 
 	return l - 1
 }
+
+func isIn(x int, a []int, low, high int) bool {
+	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bounds")
+	for i := low; i < high; i++ {
+		assertion.Invariant(low <= i && i <= high, "i is within bound")
+		if x == a[i] {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isSorted(a []int, low, high int) bool {
+	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bound")
+	for i := low; i < high-1; i++ {
+		assertion.Invariant(low <= i, "i is within lower bound")
+		assertion.Check(i < high-1, "i is within upper bound")
+		if a[i] > a[i+1] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func search(x int, a []int, n int) (result int) {
+	assertion.Require(0 <= n && n <= len(a), "n is within bound")
+	assertion.Require(isSorted(a, 0, n), "a is sorted")
+
+	defer func() {
+		assertion.Ensure((0 <= result && result < n) && x == a[result] || !isIn(x, a, 0, n) && result == -1, "result OK")
+	}()
+
+	for i := 0; i < n; i++ {
+		assertion.Invariant(0 <= i && i <= n, "i is within bound")
+		assertion.Invariant(i == 0 || x > a[i-1], "x is larger than all elements up to index i")
+		if x == a[i] {
+			return i
+		} else if x < a[i] {
+			return -1
+		}
+	}
+
+	return -1
+}
