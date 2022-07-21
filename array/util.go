@@ -24,6 +24,7 @@ func copyArray(a []int, n int) (result []int) {
 		assertion.Ensure(len(result) == n, "len(result) = n")
 		assertion.Ensure(same(a, 0, n, result, 0, n), "a[0,n) = result[0,n)")
 	}()
+
 	result = make([]int, n)
 	for i := 0; i < n; i++ {
 		assertion.Invariant(0 <= i && i <= n, "0 <= i <= n")
@@ -95,8 +96,10 @@ func copyInto(src []int, i, n int, dst []int, j int) (result int) {
 	return l - 1
 }
 
+// specification function
 func isIn(x int, a []int, low, high int) bool {
 	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bounds")
+
 	for i := low; i < high; i++ {
 		assertion.Invariant(low <= i && i <= high, "i is within bound")
 		if x == a[i] {
@@ -107,8 +110,10 @@ func isIn(x int, a []int, low, high int) bool {
 	return false
 }
 
+// specification function
 func isSorted(a []int, low, high int) bool {
 	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bound")
+
 	for i := low; i < high-1; i++ {
 		assertion.Invariant(low <= i, "i is within lower bound")
 		assertion.Check(i < high-1, "i is within upper bound")
@@ -123,14 +128,13 @@ func isSorted(a []int, low, high int) bool {
 func search(x int, a []int, n int) (result int) {
 	assertion.Require(0 <= n && n <= len(a), "n is within bound")
 	assertion.Require(isSorted(a, 0, n), "a is sorted")
-
 	defer func() {
 		assertion.Ensure((0 <= result && result < n) && x == a[result] || !isIn(x, a, 0, n) && result == -1, "result OK")
 	}()
 
 	for i := 0; i < n; i++ {
 		assertion.Invariant(0 <= i && i <= n, "i is within bound")
-		assertion.Invariant(i == 0 || x > a[i-1], "x is larger than all elements up to index i")
+		assertion.Invariant(i == 0 || x > a[i-1], "x is larger than any element up to index i")
 		if x == a[i] {
 			return i
 		} else if x < a[i] {
@@ -139,4 +143,41 @@ func search(x int, a []int, n int) (result int) {
 	}
 
 	return -1
+}
+
+// specification function
+func isMax(maxIndex int, a []int, n int) bool {
+	assertion.Require(0 <= n && n <= len(a), "0 <= n <= len(a)")
+	assertion.Require(0 <= maxIndex && maxIndex < n, "maxIndex is within bound")
+
+	max := a[maxIndex]
+	for i := 0; i < n; i++ {
+		if a[i] > max {
+			return false
+		}
+	}
+
+	return true
+}
+
+func findMax(a []int, n int) (result int) {
+	assertion.Require(0 < n && n == len(a), "0 < n = len(a)")
+	defer func() {
+		assertion.Ensure(0 <= result && result < n, "result is within bound")
+		assertion.Ensure(isMax(result, a, n), "result is index of max element")
+	}()
+
+	maxIndex := 0
+	maxVal := a[0]
+
+	for i := 1; i < n; i++ {
+		assertion.Invariant(1 <= i && i <= n, "i is within bound")
+		assertion.Invariant(isMax(maxIndex, a, i), "maxIndex is index of max element for a[0,i)")
+		if a[i] > maxVal {
+			maxIndex = i
+			maxVal = a[i]
+		}
+	}
+
+	return maxIndex
 }

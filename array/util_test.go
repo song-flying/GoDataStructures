@@ -89,3 +89,26 @@ func Test_search(t *testing.T) {
 		_ = search(1, b, 3)
 	})
 }
+
+func Test_findMax(t *testing.T) {
+	a := []int{5, 3, 7, 1}
+	i := findMax(a, 4)
+	assert.Equal(t, 2, i)
+
+	a = []int{1, 2, 3}
+	i = findMax(a, 3)
+	assert.Equal(t, 2, i)
+
+	a = []int{3, 2, 1}
+	i = findMax(a, 3)
+	assert.Equal(t, 0, i)
+
+	a = []int{1}
+	i = findMax(a, 1)
+	assert.Equal(t, 0, i)
+
+	a = []int{}
+	assert.Panics(t, func() {
+		_ = findMax(a, 0)
+	})
+}
