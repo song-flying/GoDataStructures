@@ -10,7 +10,7 @@ func LinearSearch(x int, a []int) (result int) {
 
 	for i := 0; i < len(a); i++ {
 		assertion.Invariant(0 <= i && i <= len(a), "i is within bound")
-		assertion.Invariant(i == 0 || x > a[i-1], "x > a[0, i)")
+		assertion.Invariant(i == 0 || x > a[i-1], "x is larger than any element from a[0, i)")
 		if x == a[i] {
 			return i
 		} else if x < a[i] {
