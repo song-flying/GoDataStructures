@@ -1,0 +1,22 @@
+package searching
+
+import "github.com/song-flying/GoDataStructures/pkg/assertion"
+
+func LinearSearch(x int, a []int) (result int) {
+	assertion.Require(isSorted(a, 0, len(a)), "a is sorted")
+	defer func() {
+		assertion.Ensure(0 <= result && result < len(a) && x == a[result] || !isIn(x, a, 0, len(a)) && result == -1, "result OK")
+	}()
+
+	for i := 0; i < len(a); i++ {
+		assertion.Invariant(0 <= i && i <= len(a), "i is within bound")
+		assertion.Invariant(i == 0 || x > a[i-1], "x > a[0, i)")
+		if x == a[i] {
+			return i
+		} else if x < a[i] {
+			return -1
+		}
+	}
+
+	return -1
+}

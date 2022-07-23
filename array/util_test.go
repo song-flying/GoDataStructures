@@ -75,21 +75,6 @@ func Test_copyInto(t *testing.T) {
 	})
 }
 
-func Test_search(t *testing.T) {
-	a := []int{1, 3, 5, 7}
-
-	i := search(5, a, 4)
-	assert.Equal(t, 2, i)
-
-	i = search(2, a, 4)
-	assert.Equal(t, -1, i)
-
-	b := []int{2, 1, 3}
-	assert.Panics(t, func() {
-		_ = search(1, b, 3)
-	})
-}
-
 func Test_findMax(t *testing.T) {
 	a := []int{5, 3, 7, 1}
 	i := findMax(a, 4)
