@@ -14,10 +14,13 @@ func SelectionSortRange(a []int, low, high int) {
 		assertion.Ensure(isSorted(a, low, high), "a is sorted")
 	}()
 
-	for i := low; i < high; i++ {
+	loopInv := func(i int) bool {
 		assertion.Invariant(low <= i && i <= high, "i is within bound")
 		assertion.Invariant(isSorted(a, low, i), "a[low,i) is sorted")
 		assertion.Invariant(rangeLessOrEqual(a, low, i, a, i, high), "a[low,i) <= a[i,high)")
+		return true
+	}
+	for i := low; loopInv(i) && i < high; i++ {
 		minIndex := findMin(a, i, high)
 		swap(a, minIndex, i)
 	}
@@ -31,10 +34,13 @@ func findMin(a []int, low, high int) (result int) {
 	}()
 
 	minIndex := low
-	for i := low + 1; i < high; i++ {
+	loopInv := func(i int) bool {
 		assertion.Invariant(low+1 <= i && i <= high, "i is within bound")
 		assertion.Invariant(low <= minIndex && minIndex < high, "minIndex is within bound")
 		assertion.Invariant(elementLessOrEqual(a[minIndex], a, low, i), "a[minIndex] is min value for a[low,i)")
+		return true
+	}
+	for i := low + 1; loopInv(i) && i < high; i++ {
 		if a[i] < a[minIndex] {
 			minIndex = i
 		}

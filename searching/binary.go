@@ -13,13 +13,15 @@ func BinarySearch(x int, a []int) (result int) {
 	low := 0
 	high := len(a)
 
-	for low < high {
+	loopInv := func(low, high int) bool {
 		assertion.Invariant(0 <= low && low <= high && high <= len(a), "low and high are within bound")
 		assertion.Invariant(low == 0 || a[low-1] < x, "x is larger than any element from a[0, low)")
 		assertion.Invariant(high == len(a) || a[high] > x, "x is smaller than any element from a[high,len(a))")
-
+		return true
+	}
+	for loopInv(low, high) && low < high {
 		mid := low + (high-low)/2
-		assertion.Check(low <= mid && mid < high, "mid falls with [low, high)")
+		assertion.Check(low <= mid && mid < high, "mid is within [low, high)")
 
 		if a[mid] == x {
 			return mid

@@ -3,15 +3,18 @@ package array
 import "github.com/song-flying/GoDataStructures/pkg/assertion"
 
 func cubes(n int) (result []int) {
-	assertion.Requiref(n >= 0, "n (=%d) is non-negative", n)
+	assertion.Require(n >= 0, "n is non-negative")
 	defer func() {
-		assertion.Ensuref(len(result) == n, "result's length (=%d) equals n (=%d)", len(result), n)
+		assertion.Ensure(len(result) == n, "len(result) = n")
 	}()
 
 	result = make([]int, n)
 
-	for i := 0; i < n; i++ {
+	loopInv := func(i int) bool {
 		assertion.Invariant(0 <= i && i <= n, "0 <= i <= n")
+		return true
+	}
+	for i := 0; loopInv(i) && i < n; i++ {
 		result[i] = i * i * i
 	}
 
@@ -26,9 +29,13 @@ func copyArray(a []int, n int) (result []int) {
 	}()
 
 	result = make([]int, n)
-	for i := 0; i < n; i++ {
+
+	loopInv := func(i int) bool {
 		assertion.Invariant(0 <= i && i <= n, "0 <= i <= n")
 		assertion.Invariant(same(a, 0, i, result, 0, i), "result[0,i] = a[0,i]")
+		return true
+	}
+	for i := 0; loopInv(i) && i < n; i++ {
 		result[i] = a[i]
 	}
 
@@ -40,10 +47,13 @@ func same(a []int, lowA, highA int, b []int, lowB, highB int) bool {
 	assertion.Require(0 <= lowB && lowB <= highB && highB <= len(a), "b's low and high within bound")
 	assertion.Require(highA-lowA == highB-lowB, "a and b's segment's length are the same")
 
-	for i, j := lowA, lowB; i < highA; i, j = i+1, j+1 {
+	loopInv := func(i, j int) bool {
 		assertion.Invariant(lowA <= i && i <= highA, "i is within bound")
 		assertion.Invariant(lowB <= j && j <= highB, "j is within bound")
 		assertion.Invariant(i-lowA == j-lowB, "i - lowA = j - lowB")
+		return true
+	}
+	for i, j := lowA, lowB; loopInv(i, j) && i < highA; i, j = i+1, j+1 {
 		if a[i] != b[j] {
 			return false
 		}
@@ -59,11 +69,15 @@ func subArray(a []int, low, high int) (result []int) {
 	}()
 
 	result = make([]int, high-low)
-	for i, j := low, 0; i < high; i++ {
+
+	loopInv := func(i, j int) bool {
 		assertion.Invariant(low <= i && i <= high, "i is within bound")
 		assertion.Invariant(0 <= j && j <= high-low, "j is within bound")
 		assertion.Invariant(j-0 == i-low, "i and j moves at same speed")
 		assertion.Invariant(same(a, low, i, result, 0, j), "result[0,j] = a[low,i]")
+		return true
+	}
+	for i, j := low, 0; loopInv(i, j) && i < high; i++ {
 		result[j] = a[i]
 		j++
 	}
@@ -85,11 +99,14 @@ func copyInto(src []int, i, n int, dst []int, j int) (result int) {
 	}
 
 	var k, l = i, j
-	for ; k < i+n; k, l = k+1, l+1 {
+	loopInv := func(k, l int) bool {
 		assertion.Invariant(i <= k && k <= i+n, "i <= k <= i+n")
 		assertion.Invariant(j <= l && l <= j+n, "j <= l <= j+n")
 		assertion.Invariant(k-i == l-j, "k-i == l-j")
 		assertion.Invariant(same(src, i, k, dst, j, l), "src[i,k] = dst[j,l]")
+		return true
+	}
+	for ; loopInv(k, l) && k < i+n; k, l = k+1, l+1 {
 		dst[l] = src[k]
 	}
 
@@ -121,9 +138,12 @@ func findMax(a []int, n int) (result int) {
 	maxIndex := 0
 	maxVal := a[0]
 
-	for i := 1; i < n; i++ {
+	loopInv := func(i int) bool {
 		assertion.Invariant(1 <= i && i <= n, "i is within bound")
 		assertion.Invariant(isMax(maxIndex, a, i), "maxIndex is index of max element for a[0,i)")
+		return true
+	}
+	for i := 1; loopInv(i) && i < n; i++ {
 		if a[i] > maxVal {
 			maxIndex = i
 			maxVal = a[i]

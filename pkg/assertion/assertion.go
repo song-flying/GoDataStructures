@@ -8,6 +8,7 @@ func Require(b bool, msg string) {
 	}
 }
 
+// Requiref can be used for debugging to print the actual values
 func Requiref(b bool, msg string, args ...any) {
 	if !b {
 		panic(fmt.Sprintf("pre-condition violation: "+msg, args))
@@ -20,6 +21,7 @@ func Ensure(b bool, msg string) {
 	}
 }
 
+// Ensuref can be used for debugging to print the actual values
 func Ensuref(b bool, msg string, args ...any) {
 	if !b {
 		panic(fmt.Sprintf("post-condition violation: "+msg, args...))
@@ -32,6 +34,7 @@ func Invariant(b bool, msg string) {
 	}
 }
 
+// Invariantf can be used for debugging to print the actual values
 func Invariantf(b bool, msg string, args ...any) {
 	if !b {
 		panic(fmt.Sprintf("invariant violation: "+msg, args...))
@@ -41,5 +44,12 @@ func Invariantf(b bool, msg string, args ...any) {
 func Check(b bool, msg string) {
 	if !b {
 		panic("assertion violation: " + msg)
+	}
+}
+
+// Checkf can be used for debugging to print the actual values
+func Checkf(b bool, msg string, args ...any) {
+	if !b {
+		panic(fmt.Sprintf("assertion violation: "+msg, args...))
 	}
 }
