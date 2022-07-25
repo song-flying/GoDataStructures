@@ -13,7 +13,7 @@ func Require(b bool, msg string) {
 // Requiref can be used for debugging to print the actual values
 func Requiref(b bool, msg string, args ...any) {
 	if On && !b {
-		panic(fmt.Sprintf("pre-condition violation: "+msg, args))
+		panic(fmt.Sprintf("pre-condition violation: "+msg, args...))
 	}
 }
 

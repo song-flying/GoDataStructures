@@ -68,7 +68,7 @@ func elementGreaterThan(x int, a []int, low, high int) bool {
 
 func rangeLessOrEqual(a []int, lowA, highA int, b []int, lowB, highB int) bool {
 	assertion.Require(0 <= lowA && lowA <= highA && highA <= len(a), "lowA and highA are within bound")
-	assertion.Require(0 <= lowB && lowB <= highB && highB <= len(a), "lowB and highB are within bound")
+	assertion.Require(0 <= lowB && lowB <= highB && highB <= len(b), "lowB and highB are within bound")
 
 	for i := lowA; i < highA; i++ {
 		if !elementLessThanOrEqual(a[i], b, lowB, highB) {

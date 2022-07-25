@@ -20,8 +20,10 @@ func QuickSortRange(a []int, low, high int) {
 	mid := partition(a, low, pIndex, high)
 
 	QuickSortRange(a, low, mid)
+	assertion.Check(isSorted(a, low, mid), "a[low,mid) is sorted")
 
 	QuickSortRange(a, mid+1, high)
+	assertion.Check(isSorted(a, mid+1, high), "a[mid+1,high) is sorted")
 }
 
 func partition(a []int, low, pIndex, high int) (result int) {
