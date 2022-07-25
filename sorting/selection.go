@@ -30,14 +30,14 @@ func findMin(a []int, low, high int) (result int) {
 	assertion.Require(0 <= low && low < high && high <= len(a), "low and high are within bound")
 	defer func() {
 		assertion.Ensure(low <= result && result < high, "result is within bound")
-		assertion.Ensure(elementLessOrEqual(a[result], a, low, high), "result is the index of smallest element")
+		assertion.Ensure(elementLessThanOrEqual(a[result], a, low, high), "result is the index of smallest element")
 	}()
 
 	minIndex := low
 	loopInv := func(i int) bool {
 		assertion.Invariant(low+1 <= i && i <= high, "i is within bound")
 		assertion.Invariant(low <= minIndex && minIndex < high, "minIndex is within bound")
-		assertion.Invariant(elementLessOrEqual(a[minIndex], a, low, i), "a[minIndex] is min value for a[low,i)")
+		assertion.Invariant(elementLessThanOrEqual(a[minIndex], a, low, i), "a[minIndex] is min value for a[low,i)")
 		return true
 	}
 	for i := low + 1; loopInv(i) && i < high; i++ {
