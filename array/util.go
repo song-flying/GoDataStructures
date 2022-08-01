@@ -2,7 +2,7 @@ package array
 
 import "github.com/song-flying/GoDataStructures/pkg/assertion"
 
-func cubes(n int) (result []int) {
+func Cubes(n int) (result []int) {
 	assertion.Require(n >= 0, "n is non-negative")
 	defer func() {
 		assertion.Ensure(len(result) == n, "len(result) = n")
@@ -21,7 +21,7 @@ func cubes(n int) (result []int) {
 	return result
 }
 
-func copyArray(a []int, n int) (result []int) {
+func CopyArray(a []int, n int) (result []int) {
 	assertion.Require(n == len(a), "len(a) = n")
 	defer func() {
 		assertion.Ensure(len(result) == n, "len(result) = n")
@@ -62,7 +62,7 @@ func same(a []int, lowA, highA int, b []int, lowB, highB int) bool {
 	return true
 }
 
-func subArray(a []int, low, high int) (result []int) {
+func SubArray(a []int, low, high int) (result []int) {
 	assertion.Require(0 <= low && low <= high && high <= len(a), "low & high are in range")
 	defer func() {
 		assertion.Ensure(same(a, low, high, result, 0, len(result)), "result[0, len) = a[low,high)")
@@ -85,7 +85,7 @@ func subArray(a []int, low, high int) (result []int) {
 	return
 }
 
-func copyInto(src []int, i, n int, dst []int, j int) (result int) {
+func CopyInto(src []int, i, n int, dst []int, j int) (result int) {
 	assertion.Require(0 <= n, "n >= 0")
 	assertion.Require(0 <= i && i+n <= len(src), "0 <= i && i+n <= len(src)")
 	assertion.Require(0 <= j && j+n <= len(dst), "0 <= j && j+n <= len(dst)")
@@ -128,7 +128,7 @@ func isMax(maxIndex int, a []int, n int) bool {
 	return true
 }
 
-func findMax(a []int, n int) (result int) {
+func FindMax(a []int, n int) (result int) {
 	assertion.Require(0 < n && n == len(a), "0 < n = len(a)")
 	defer func() {
 		assertion.Ensure(0 <= result && result < n, "result is within bound")
