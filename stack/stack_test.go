@@ -6,7 +6,9 @@ import (
 )
 
 func TestLinkedStack(t *testing.T) {
-	s := NewLinkedStack[int]()
+	var s Stack[int]
+
+	s = NewLinkedStack[int]()
 	assert.True(t, s.IsEmpty())
 
 	s.Push(1)
