@@ -1,9 +1,12 @@
-package searching
+package array
 
-import "github.com/song-flying/GoDataStructures/pkg/assertion"
+import (
+	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"golang.org/x/exp/constraints"
+)
 
 // specification function
-func isIn(x int, a []int, low, high int) bool {
+func isIn[T comparable](x T, a []T, low, high int) bool {
 	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bounds")
 
 	loopInv := func(i int) bool {
@@ -20,7 +23,7 @@ func isIn(x int, a []int, low, high int) bool {
 }
 
 // specification function
-func isSorted(a []int, low, high int) bool {
+func isSorted[T constraints.Ordered](a []T, low, high int) bool {
 	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bound")
 
 	loopInv := func(i int) bool {

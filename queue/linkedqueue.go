@@ -6,8 +6,8 @@ import (
 )
 
 type LinkedQueue[T any] struct {
-	front linked.List[T]
-	back  linked.List[T]
+	front *linked.Node[T]
+	back  *linked.Node[T]
 }
 
 // data structure invariant
@@ -15,14 +15,14 @@ func (q *LinkedQueue[T]) isLinkedQueue() bool {
 	return q != nil && !linked.HasCycle(q.front) && linked.IsSegment(q.front, q.back)
 }
 
-func NewLinkedQueue[T any]() (result *LinkedQueue[T]) {
+func NewLinkedQueue[T any]() (result LinkedQueue[T]) {
 	defer func() {
 		assertion.Ensure(result.isLinkedQueue(), "queue invariant holds")
 		assertion.Ensure(result.IsEmpty(), "new queue is empty")
 	}()
 
 	dummy := linked.NewDummyNode[T]()
-	return &LinkedQueue[T]{
+	return LinkedQueue[T]{
 		front: dummy,
 		back:  dummy,
 	}

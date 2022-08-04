@@ -5,7 +5,7 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-func HasCycle[T any](l List[T]) bool {
+func HasCycle[T any](l *Node[T]) bool {
 	if l == nil {
 		return false
 	}
@@ -19,10 +19,10 @@ func HasCycle[T any](l List[T]) bool {
 		return true
 	}
 	for i := 0; loopInv(i) && fast != nil && slow != fast; i++ {
-		slow = Next(slow, 1)
+		slow = next(slow, 1)
 		assertion.Check(slow != nil, "slow node is not nil")
 
-		fast = Next(fast, 2)
+		fast = next(fast, 2)
 	}
 
 	if fast == nil {
@@ -34,7 +34,7 @@ func HasCycle[T any](l List[T]) bool {
 	}
 }
 
-func Next[T any](start *Node[T], n int) (result *Node[T]) {
+func next[T any](start *Node[T], n int) (result *Node[T]) {
 	assertion.Require(n >= 0, "n is non-negative")
 	defer func() {
 		assertion.Ensure(result == nil || isReachableWith(start, result, n), "result is reachable from start with n steps")
@@ -45,7 +45,7 @@ func Next[T any](start *Node[T], n int) (result *Node[T]) {
 	} else if n == 0 {
 		return start
 	} else {
-		return Next(start.Next, n-1)
+		return next(start.Next, n-1)
 	}
 }
 
@@ -76,7 +76,7 @@ func IsSegment[T any](start, end *Node[T]) bool {
 	return start != nil && end == nil
 }
 
-func LengthOfSegment[T any](start, end List[T]) int {
+func LengthOfSegment[T any](start, end *Node[T]) int {
 	assertion.Require(IsSegment(start, end), "start and end forms a segment")
 
 	count := 0
@@ -87,30 +87,7 @@ func LengthOfSegment[T any](start, end List[T]) int {
 	return count
 }
 
-func Length[T any](l List[T]) int {
-	assertion.Require(!HasCycle(l), "l has no cycle")
-
-	length := 0
-	for curr := l; curr != nil; curr = curr.Next {
-		length++
-	}
-
-	return length
-}
-
-func Ith[T any](l List[T], i int) T {
-	assertion.Require(0 <= i && i < Length(l), "i is within bound")
-
-	curr := l
-	for count := 0; count < i; count++ {
-		assertion.Check(curr != nil, "current node is not nil")
-		curr = curr.Next
-	}
-
-	return curr.Data
-}
-
-func isInSegment[T comparable](x T, start, end List[T]) (result bool) {
+func IsInSegment[T comparable](x T, start, end *Node[T]) (result bool) {
 	assertion.Require(IsSegment(start, end), "start and end forms a segment")
 
 	for curr := start; curr != end; curr = curr.Next {
@@ -122,7 +99,7 @@ func isInSegment[T comparable](x T, start, end List[T]) (result bool) {
 	return false
 }
 
-func isSegmentSorted[T constraints.Ordered](start, end List[T]) bool {
+func IsSegmentSorted[T constraints.Ordered](start, end *Node[T]) bool {
 	assertion.Require(IsSegment(start, end), "start and ends forms a segment")
 
 	if start == end {
@@ -138,41 +115,14 @@ func isSegmentSorted[T constraints.Ordered](start, end List[T]) bool {
 	return true
 }
 
-func BinarySearch[T constraints.Ordered](x T, l List[T]) (result int) {
-	assertion.Require(!HasCycle(l), "l has no cycle")
+func IthSegment[T any](start *Node[T], i int) T {
+	assertion.Require(0 <= i && i < LengthOfSegment(start, nil), "i is within bound")
 
-	if l == nil {
-		return -1
+	curr := start
+	for count := 0; count < i; count++ {
+		assertion.Check(curr != nil, "current node is not nil")
+		curr = curr.Next
 	}
 
-	return BinarySearchSegment(x, l, nil)
-}
-
-func BinarySearchSegment[T constraints.Ordered](x T, start, end List[T]) (result int) {
-	assertion.Require(isSegmentSorted(start, end), "segment [start,end) is sorted")
-	defer func() {
-		assertion.Ensure(
-			result == -1 && !isInSegment(x, start, end) ||
-				0 <= result && result < LengthOfSegment(start, end) && Ith(start, result) == x,
-			"result is OK")
-	}()
-
-	low := 0
-	high := LengthOfSegment(start, end)
-
-	for low < high {
-		mid := low + (high-low)/2
-		assertion.Check(low <= mid && mid < high, "mid is within [low, high)")
-		midVal := Ith(start, mid)
-
-		if midVal == x {
-			return mid
-		} else if midVal < x {
-			low = mid + 1
-		} else { // midVal > x
-			high = mid
-		}
-	}
-
-	return -1
+	return curr.Data
 }

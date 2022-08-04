@@ -6,8 +6,8 @@ import (
 )
 
 type LinkedStack[T any] struct {
-	top    linked.List[T]
-	bottom linked.List[T]
+	top    *linked.Node[T]
+	bottom *linked.Node[T]
 }
 
 // data structure invariant
@@ -15,14 +15,14 @@ func (s *LinkedStack[T]) isLinkedStack() bool {
 	return s != nil && !linked.HasCycle(s.top) && linked.IsSegment(s.top, s.bottom)
 }
 
-func NewLinkedStack[T any]() (result *LinkedStack[T]) {
+func NewLinkedStack[T any]() (result LinkedStack[T]) {
 	defer func() {
 		assertion.Ensure(result.isLinkedStack(), "stack invariant holds")
 		assertion.Ensure(result.IsEmpty(), "new stack is empty")
 	}()
 
 	dummy := linked.NewDummyNode[T]()
-	return &LinkedStack[T]{
+	return LinkedStack[T]{
 		top:    dummy,
 		bottom: dummy,
 	}

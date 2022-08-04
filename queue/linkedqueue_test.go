@@ -6,9 +6,7 @@ import (
 )
 
 func TestLinkedQueue(t *testing.T) {
-	var q Queue[int]
-
-	q = NewLinkedQueue[int]()
+	q := NewLinkedQueue[int]()
 	assert.True(t, q.IsEmpty())
 
 	q.Enqueue(1)

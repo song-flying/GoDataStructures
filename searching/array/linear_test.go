@@ -1,4 +1,4 @@
-package searching
+package array
 
 import (
 	"github.com/stretchr/testify/assert"

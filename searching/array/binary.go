@@ -1,10 +1,11 @@
-package searching
+package array
 
 import (
 	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"golang.org/x/exp/constraints"
 )
 
-func BinarySearch(x int, a []int) (result int) {
+func BinarySearch[T constraints.Ordered](x T, a []T) (result int) {
 	assertion.Require(isSorted(a, 0, len(a)), "a is sorted")
 	defer func() {
 		assertion.Ensure(!isIn(x, a, 0, len(a)) && result == -1 || 0 <= result && result < len(a) && x == a[result], "result is OK")
