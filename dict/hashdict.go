@@ -162,21 +162,21 @@ func (h *HashDict[K, V]) Size() (result int) {
 	return h.size
 }
 
-func (h *HashDict[K, V]) resize(newSize int) {
+func (h *HashDict[K, V]) resize(newCapacity int) {
 	assertion.Require(h.isHashDict(), "hash dict invariant holds")
 	defer func(oldSize int) {
 		assertion.Ensure(h.isHashDict(), "hash dict invariant holds")
-		assertion.Ensure(oldSize == h.size, "resize does not affect count of elements")
-		assertion.Ensuref(newSize == h.capacity, "resize changes capacity, newSize=%v,capacity=%v", newSize, h.capacity)
+		assertion.Ensure(oldSize == h.size, "resize does not change count of entries")
+		assertion.Ensure(newCapacity == h.capacity, "resize changes capacity")
 	}(h.size)
 
-	if newSize == h.capacity {
+	if newCapacity == h.capacity {
 		return
 	}
 
 	oldTable := h.table
-	h.table = make([]linked.List[entry[K, V]], newSize)
-	h.capacity = newSize
+	h.table = make([]linked.List[entry[K, V]], newCapacity)
+	h.capacity = newCapacity
 	h.size = 0
 
 	for _, l := range oldTable {
