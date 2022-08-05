@@ -15,10 +15,32 @@ type HashSet[E comparable] struct {
 	maxLoad  int
 }
 
+func (h *HashSet[E]) hashOK() bool {
+	for i, l := range h.table {
+		for curr := l.Head; curr != nil; curr = curr.Next {
+			hashIndex := h.indexOfElement(curr.Data)
+			if i != hashIndex {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func (h *HashSet[E]) sizeOK() bool {
+	size := 0
+	for _, l := range h.table {
+		size += l.Length()
+	}
+
+	return h.size == size
+}
+
 // data structure invariant
 func (h *HashSet[E]) isHashSet() bool {
 	return h != nil && 0 <= h.size && 0 < h.capacity &&
-		len(h.table) == h.capacity && 0 < h.maxLoad
+		len(h.table) == h.capacity && 0 < h.maxLoad && h.hashOK() && h.sizeOK()
 }
 
 func NewHashSet[E comparable](capacity int, hashFn HashFn[E], maxLoad int) (result HashSet[E]) {
@@ -52,7 +74,8 @@ func abs(x int) (result int) {
 }
 
 func (h *HashSet[E]) indexOfElement(key E) (result int) {
-	assertion.Require(h.isHashSet(), "hash set invariant holds")
+	assertion.Require(h.hashFn != nil, "hash function is not nil")
+	assertion.Require(h.capacity > 0, "capacity is positive")
 	defer func() {
 		assertion.Ensure(0 <= result && result < h.capacity, "result is within bound")
 	}()

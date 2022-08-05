@@ -47,6 +47,10 @@ func (l *List[T]) HasCycle() bool {
 func (l *List[T]) Length() int {
 	assertion.Require(!l.HasCycle(), "l has no cycle")
 
+	if l.Head == nil {
+		return 0
+	}
+
 	return LengthOfSegment(l.Head, nil)
 }
 

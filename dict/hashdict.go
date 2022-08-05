@@ -28,10 +28,32 @@ type HashDict[K comparable, V comparable] struct {
 	maxLoad  int
 }
 
+func (h *HashDict[K, V]) hashOK() bool {
+	for i, l := range h.table {
+		for curr := l.Head; curr != nil; curr = curr.Next {
+			hashIndex := h.indexOfKey(curr.Data.Key())
+			if i != hashIndex {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func (h *HashDict[K, V]) sizeOK() bool {
+	size := 0
+	for _, l := range h.table {
+		size += l.Length()
+	}
+
+	return h.size == size
+}
+
 // data structure invariant
 func (h *HashDict[K, V]) isHashDict() bool {
 	return h != nil && 0 <= h.size && 0 < h.capacity &&
-		len(h.table) == h.capacity && 0 < h.maxLoad
+		len(h.table) == h.capacity && 0 < h.maxLoad && h.hashOK() && h.sizeOK()
 }
 
 func NewHashDict[K comparable, V comparable](capacity int, hashFn HashFn[K], maxLoad int) (result HashDict[K, V]) {
@@ -65,7 +87,8 @@ func abs(x int) (result int) {
 }
 
 func (h *HashDict[K, V]) indexOfKey(key K) (result int) {
-	assertion.Require(h.isHashDict(), "hash dict invariant holds")
+	assertion.Require(h.hashFn != nil, "hash function is not nil")
+	assertion.Require(h.capacity > 0, "capacity is positive")
 	defer func() {
 		assertion.Ensure(0 <= result && result < h.capacity, "result is within bound")
 	}()
