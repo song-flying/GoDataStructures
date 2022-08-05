@@ -36,6 +36,7 @@ func (h *HashDict[K, V]) isHashDict() bool {
 
 func NewHashDict[K comparable, V comparable](capacity int, hashFn HashFn[K], maxLoad int) (result HashDict[K, V]) {
 	assertion.Require(0 < capacity, "capacity is positive")
+	assertion.Require(0 < maxLoad, "maxLoad is positive")
 	assertion.Require(hashFn != nil, "hash function is not nil")
 	defer func() {
 		assertion.Ensure(result.isHashDict(), "hash dict invariant holds")
@@ -96,9 +97,7 @@ func (h *HashDict[K, V]) Put(key K, value V) {
 	}()
 
 	index := h.indexOfKey(key)
-
 	l := &h.table[index]
-
 	for curr := l.Head; curr != nil; curr = curr.Next {
 		if curr.Data.Key() == key {
 			curr.Data.value = value
@@ -125,7 +124,6 @@ func (h *HashDict[K, V]) Delete(key K) {
 	}()
 
 	index := h.indexOfKey(key)
-
 	l := &h.table[index]
 	if l.Head == nil {
 		return
