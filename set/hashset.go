@@ -90,3 +90,12 @@ func (h *HashSet[E]) Add(x E) {
 	l.Head = newHead
 	h.size++
 }
+
+func (h *HashSet[E]) Size() (result int) {
+	assertion.Require(h.isHashSet(), "hash set invariant holds")
+	defer func() {
+		assertion.Ensure(result >= 0, "result is non-negative")
+	}()
+
+	return h.size
+}
