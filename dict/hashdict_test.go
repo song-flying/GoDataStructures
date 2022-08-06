@@ -1,21 +1,14 @@
 package dict
 
 import (
+	"github.com/song-flying/GoDataStructures/hash"
 	"github.com/stretchr/testify/assert"
-	"hash/maphash"
 	"strconv"
 	"testing"
 )
 
-var h maphash.Hash
-var hashFn = func(s string) int {
-	_, _ = h.WriteString(s)
-	defer h.Reset()
-	return int(h.Sum64())
-}
-
 func TestHashDict(t *testing.T) {
-	dict := NewHashDict[string, int](1, hashFn, 1)
+	dict := NewHashDict[string, int](1, hash.String, 1)
 	v, ok := dict.Get("hello")
 	assert.False(t, ok)
 	assert.Equal(t, 0, v)

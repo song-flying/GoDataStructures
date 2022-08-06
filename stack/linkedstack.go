@@ -10,14 +10,14 @@ type LinkedStack[T any] struct {
 	bottom *linked.Node[T]
 }
 
-// data structure invariant
-func (s *LinkedStack[T]) isLinkedStack() bool {
+// IsLinkedStack data structure invariant
+func (s *LinkedStack[T]) IsLinkedStack() bool {
 	return s != nil && !linked.HasCycle(s.top) && linked.IsSegment(s.top, s.bottom)
 }
 
 func NewLinkedStack[T any]() (result LinkedStack[T]) {
 	defer func() {
-		assertion.Ensure(result.isLinkedStack(), "stack invariant holds")
+		assertion.Ensure(result.IsLinkedStack(), "stack invariant holds")
 		assertion.Ensure(result.IsEmpty(), "new stack is empty")
 	}()
 
@@ -33,9 +33,9 @@ func (s *LinkedStack[T]) IsEmpty() bool {
 }
 
 func (s *LinkedStack[T]) Push(x T) {
-	assertion.Require(s.isLinkedStack(), "stack invariant holds")
+	assertion.Require(s.IsLinkedStack(), "stack invariant holds")
 	defer func() {
-		assertion.Ensure(s.isLinkedStack(), "stack invariant holds")
+		assertion.Ensure(s.IsLinkedStack(), "stack invariant holds")
 	}()
 
 	l := linked.NewNode(x)
@@ -44,10 +44,10 @@ func (s *LinkedStack[T]) Push(x T) {
 }
 
 func (s *LinkedStack[T]) Pop() (result T) {
-	assertion.Require(s.isLinkedStack(), "stack invariant holds")
+	assertion.Require(s.IsLinkedStack(), "stack invariant holds")
 	assertion.Require(!s.IsEmpty(), "stack is not empty")
 	defer func() {
-		assertion.Ensure(s.isLinkedStack(), "stack invariant holds")
+		assertion.Ensure(s.IsLinkedStack(), "stack invariant holds")
 	}()
 
 	result = s.top.Data
@@ -57,7 +57,7 @@ func (s *LinkedStack[T]) Pop() (result T) {
 }
 
 func (s *LinkedStack[T]) Peek() T {
-	assertion.Require(s.isLinkedStack(), "stack invariant holds")
+	assertion.Require(s.IsLinkedStack(), "stack invariant holds")
 	assertion.Require(!s.IsEmpty(), "stack is not empty")
 
 	return s.top.Data

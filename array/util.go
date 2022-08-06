@@ -1,6 +1,10 @@
 package array
 
-import "github.com/song-flying/GoDataStructures/pkg/assertion"
+import (
+	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"math/rand"
+	"time"
+)
 
 func Cubes(n int) (result []int) {
 	assertion.Require(n >= 0, "n is non-negative")
@@ -151,4 +155,22 @@ func FindMax(a []int, n int) (result int) {
 	}
 
 	return maxIndex
+}
+
+func swap[T comparable](a []T, i, j int) {
+	tmp := a[i]
+	a[i] = a[j]
+	a[j] = tmp
+}
+
+func Shuffle[T comparable](a []T) {
+	for i := 0; i < len(a); i++ {
+		swap(a, i, randRange(i, len(a)))
+	}
+}
+
+func randRange(m, n int) int {
+	s := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(s)
+	return r.Intn(n-m) + m
 }

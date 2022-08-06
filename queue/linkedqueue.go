@@ -10,14 +10,14 @@ type LinkedQueue[T any] struct {
 	back  *linked.Node[T]
 }
 
-// data structure invariant
-func (q *LinkedQueue[T]) isLinkedQueue() bool {
+// IsLinkedQueue data structure invariant
+func (q *LinkedQueue[T]) IsLinkedQueue() bool {
 	return q != nil && !linked.HasCycle(q.front) && linked.IsSegment(q.front, q.back)
 }
 
 func NewLinkedQueue[T any]() (result LinkedQueue[T]) {
 	defer func() {
-		assertion.Ensure(result.isLinkedQueue(), "queue invariant holds")
+		assertion.Ensure(result.IsLinkedQueue(), "queue invariant holds")
 		assertion.Ensure(result.IsEmpty(), "new queue is empty")
 	}()
 
@@ -29,15 +29,15 @@ func NewLinkedQueue[T any]() (result LinkedQueue[T]) {
 }
 
 func (q *LinkedQueue[T]) IsEmpty() bool {
-	assertion.Require(q.isLinkedQueue(), "queue invariant holds")
+	assertion.Require(q.IsLinkedQueue(), "queue invariant holds")
 
 	return q.front == q.back
 }
 
 func (q *LinkedQueue[T]) Enqueue(x T) {
-	assertion.Require(q.isLinkedQueue(), "queue invariant holds")
+	assertion.Require(q.IsLinkedQueue(), "queue invariant holds")
 	defer func() {
-		assertion.Ensure(q.isLinkedQueue(), "queue invariant holds")
+		assertion.Ensure(q.IsLinkedQueue(), "queue invariant holds")
 	}()
 
 	q.back.Data = x
@@ -46,10 +46,10 @@ func (q *LinkedQueue[T]) Enqueue(x T) {
 }
 
 func (q *LinkedQueue[T]) Dequeue() (result T) {
-	assertion.Require(q.isLinkedQueue(), "queue invariant holds")
+	assertion.Require(q.IsLinkedQueue(), "queue invariant holds")
 	assertion.Require(!q.IsEmpty(), "queue is not empty")
 	defer func() {
-		assertion.Ensure(q.isLinkedQueue(), "queue invariant holds")
+		assertion.Ensure(q.IsLinkedQueue(), "queue invariant holds")
 	}()
 
 	result = q.front.Data
@@ -59,7 +59,7 @@ func (q *LinkedQueue[T]) Dequeue() (result T) {
 }
 
 func (q *LinkedQueue[T]) Head() T {
-	assertion.Require(q.isLinkedQueue(), "queue invariant holds")
+	assertion.Require(q.IsLinkedQueue(), "queue invariant holds")
 	assertion.Require(!q.IsEmpty(), "queue is not empty")
 
 	return q.front.Data

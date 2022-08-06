@@ -97,3 +97,9 @@ func TestFindMax(t *testing.T) {
 		_ = FindMax(a, 0)
 	})
 }
+
+func TestShuffle(t *testing.T) {
+	a := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
+	Shuffle(a)
+	t.Log(a)
+}

@@ -5,19 +5,6 @@ import (
 	"github.com/song-flying/GoDataStructures/pkg/assertion"
 )
 
-type entry[K any, V any] struct {
-	key   K
-	value V
-}
-
-func (e *entry[K, V]) Key() K {
-	return e.key
-}
-
-func (e *entry[K, V]) Value() V {
-	return e.value
-}
-
 type HashFn[K comparable] func(K) int
 
 type HashDict[K comparable, V comparable] struct {
@@ -28,10 +15,20 @@ type HashDict[K comparable, V comparable] struct {
 	maxLoad  int
 }
 
+func (h *HashDict[K, V]) listOK() bool {
+	for _, l := range h.table {
+		if !l.IsList() {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (h *HashDict[K, V]) hashOK() bool {
 	for i, l := range h.table {
 		for curr := l.Head; curr != nil; curr = curr.Next {
-			hashIndex := h.indexOfKey(curr.Data.Key())
+			hashIndex := h.indexOfKey(curr.Data.Key)
 			if i != hashIndex {
 				return false
 			}
@@ -50,10 +47,10 @@ func (h *HashDict[K, V]) sizeOK() bool {
 	return h.size == size
 }
 
-// data structure invariant
-func (h *HashDict[K, V]) isHashDict() bool {
-	return h != nil && 0 <= h.size && 0 < h.capacity &&
-		len(h.table) == h.capacity && 0 < h.maxLoad && h.hashOK() && h.sizeOK()
+// IsHashDict data structure invariant
+func (h *HashDict[K, V]) IsHashDict() bool {
+	return h != nil && 0 <= h.size && 0 < h.capacity && len(h.table) == h.capacity &&
+		0 < h.maxLoad && h.listOK() && h.hashOK() && h.sizeOK()
 }
 
 func NewHashDict[K comparable, V comparable](capacity int, hashFn HashFn[K], maxLoad int) (result HashDict[K, V]) {
@@ -61,7 +58,7 @@ func NewHashDict[K comparable, V comparable](capacity int, hashFn HashFn[K], max
 	assertion.Require(0 < maxLoad, "maxLoad is positive")
 	assertion.Require(hashFn != nil, "hash function is not nil")
 	defer func() {
-		assertion.Ensure(result.isHashDict(), "hash dict invariant holds")
+		assertion.Ensure(result.IsHashDict(), "hash dict invariant holds")
 	}()
 
 	table := make([]linked.List[entry[K, V]], capacity)
@@ -96,15 +93,15 @@ func (h *HashDict[K, V]) indexOfKey(key K) (result int) {
 	return abs(h.hashFn(key) % h.capacity)
 }
 
-func (h *HashDict[K, V]) Get(key K) (V, bool) {
-	assertion.Require(h.isHashDict(), "hash dict invariant holds")
+func (h *HashDict[K, V]) Get(key K) (result V, found bool) {
+	assertion.Require(h.IsHashDict(), "hash dict invariant holds")
 
 	index := h.indexOfKey(key)
 	l := &h.table[index]
 
 	for curr := l.Head; curr != nil; curr = curr.Next {
-		if curr.Data.Key() == key {
-			return curr.Data.Value(), true
+		if curr.Data.Key == key {
+			return curr.Data.Value, true
 		}
 	}
 
@@ -112,23 +109,23 @@ func (h *HashDict[K, V]) Get(key K) (V, bool) {
 }
 
 func (h *HashDict[K, V]) Put(key K, value V) {
-	assertion.Require(h.isHashDict(), "hash dict invariant holds")
+	assertion.Require(h.IsHashDict(), "hash dict invariant holds")
 	defer func() {
-		assertion.Ensure(h.isHashDict(), "hash dict invariant holds")
+		assertion.Ensure(h.IsHashDict(), "hash dict invariant holds")
 		v, ok := h.Get(key)
-		assertion.Ensure(ok && v == value, "Get() returns value for key")
+		assertion.Ensure(ok && v == value, "Get(key) returns value")
 	}()
 
 	index := h.indexOfKey(key)
 	l := &h.table[index]
 	for curr := l.Head; curr != nil; curr = curr.Next {
-		if curr.Data.Key() == key {
-			curr.Data.value = value
+		if curr.Data.Key == key {
+			curr.Data.Value = value
 			return
 		}
 	}
 
-	newHead := linked.NewNode(entry[K, V]{key: key, value: value})
+	newHead := linked.NewNode(entry[K, V]{Key: key, Value: value})
 	newHead.Next = l.Head
 	l.Head = newHead
 	h.size++
@@ -139,9 +136,9 @@ func (h *HashDict[K, V]) Put(key K, value V) {
 }
 
 func (h *HashDict[K, V]) Delete(key K) {
-	assertion.Require(h.isHashDict(), "hash dict invariant holds")
+	assertion.Require(h.IsHashDict(), "hash dict invariant holds")
 	defer func() {
-		assertion.Ensure(h.isHashDict(), "hash dict invariant holds")
+		assertion.Ensure(h.IsHashDict(), "hash dict invariant holds")
 		_, ok := h.Get(key)
 		assertion.Ensure(!ok, "Get() returns no value for key")
 	}()
@@ -154,7 +151,7 @@ func (h *HashDict[K, V]) Delete(key K) {
 
 	isDeleted := false
 	for curr := &l.Head; *curr != nil; curr = &(*curr).Next {
-		if (*curr).Data.Key() == key {
+		if (*curr).Data.Key == key {
 			target := *curr
 			*curr = target.Next
 			target.Next = nil
@@ -175,7 +172,7 @@ func (h *HashDict[K, V]) Delete(key K) {
 }
 
 func (h *HashDict[K, V]) Size() (result int) {
-	assertion.Require(h.isHashDict(), "hash dict invariant holds")
+	assertion.Require(h.IsHashDict(), "hash dict invariant holds")
 	defer func() {
 		assertion.Ensure(result >= 0, "result is non-negative")
 	}()
@@ -184,9 +181,9 @@ func (h *HashDict[K, V]) Size() (result int) {
 }
 
 func (h *HashDict[K, V]) resize(newCapacity int) {
-	assertion.Require(h.isHashDict(), "hash dict invariant holds")
+	assertion.Require(h.IsHashDict(), "hash dict invariant holds")
 	defer func(oldSize int) {
-		assertion.Ensure(h.isHashDict(), "hash dict invariant holds")
+		assertion.Ensure(h.IsHashDict(), "hash dict invariant holds")
 		assertion.Ensure(oldSize == h.size, "resize does not change count of entries")
 		assertion.Ensure(newCapacity == h.capacity, "resize changes capacity")
 	}(h.size)
@@ -202,7 +199,7 @@ func (h *HashDict[K, V]) resize(newCapacity int) {
 
 	for _, l := range oldTable {
 		for curr := l.Head; curr != nil; curr = curr.Next {
-			h.Put(curr.Data.Key(), curr.Data.Value())
+			h.Put(curr.Data.Key, curr.Data.Value)
 		}
 	}
 }

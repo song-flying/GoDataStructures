@@ -26,26 +26,34 @@ type List[T any] struct {
 	Head *Node[T]
 }
 
-func NewEmptyList[T any]() List[T] {
+// IsList data structure invariant
+func (l *List[T]) IsList() bool {
+	return !HasCycle(l.Head)
+}
+
+func NewEmptyList[T any]() (result List[T]) {
+	assertion.Ensure(result.IsList(), "list invariant holds")
+
 	return List[T]{}
 }
 
-func NewList[T any](head *Node[T]) List[T] {
+func NewList[T any](head *Node[T]) (result List[T]) {
+	assertion.Ensure(result.IsList(), "list invariant holds")
+
 	return List[T]{
 		Head: head,
 	}
 }
 
 func (l *List[T]) IsEmpty() bool {
+	assertion.Require(l.IsList(), "list invariant holds")
+
 	return l.Head == nil
 }
 
-func (l *List[T]) HasCycle() bool {
-	return HasCycle(l.Head)
-}
-
-func (l *List[T]) Length() int {
-	assertion.Require(!l.HasCycle(), "l has no cycle")
+func (l *List[T]) Length() (result int) {
+	assertion.Require(l.IsList(), "list invariant holds")
+	assertion.Ensure(0 <= result, "result is non-negative")
 
 	if l.Head == nil {
 		return 0
@@ -55,6 +63,7 @@ func (l *List[T]) Length() int {
 }
 
 func (l *List[T]) Ith(i int) T {
+	assertion.Require(l.IsList(), "list invariant holds")
 	assertion.Require(0 <= i && i < l.Length(), "i is within bound")
 
 	return IthSegment(l.Head, i)
