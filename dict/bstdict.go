@@ -1,6 +1,7 @@
 package dict
 
 import (
+	"github.com/song-flying/GoDataStructures/array"
 	"github.com/song-flying/GoDataStructures/pkg/assertion"
 	"github.com/song-flying/GoDataStructures/tree"
 	"golang.org/x/exp/constraints"
@@ -26,6 +27,21 @@ func (b *BSTDict[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], lower, upp
 
 	return (lower == nil || b.comp(*lower, key) < 0) && b.isOrdered(root.Left, lower, &key) &&
 		(upper == nil || b.comp(key, *upper) < 0) && b.isOrdered(root.Right, &key, upper)
+}
+
+func entryComparator[K constraints.Ordered, V comparable](x, y entry[K, V]) int {
+	switch {
+	case x.Key == y.Key:
+		return 0
+	case x.Key < y.Key:
+		return -1
+	default: //x > y
+		return 1
+	}
+}
+
+func (b *BSTDict[K, V]) hasSameEntries(a1, a2 []entry[K, V]) bool {
+	return len(a1) == len(a2) && array.IsSubArrayOf(a1, a2, entryComparator[K, V])
 }
 
 // IsBSTDict data structure invariant
@@ -75,13 +91,23 @@ func (b *BSTDict[K, V]) Get(key K) (V, bool) {
 	return *new(V), false
 }
 
-func (b *BSTDict[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value V) *tree.BinaryNode[entry[K, V]] {
+func equalKey[K comparable, V comparable](e1, e2 entry[K, V]) bool {
+	return e1.Key == e2.Key
+}
+
+func (b *BSTDict[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value V) (result *tree.BinaryNode[entry[K, V]]) {
 	assertion.Require(root.IsBinaryTree(), "root is valid binary tree")
 	assertion.Require(b.isOrdered(root, nil, nil), "root is ordered")
-	defer func() {
-		assertion.Ensure(root.IsBinaryTree(), "root is valid binary tree")
-		assertion.Ensure(b.isOrdered(root, nil, nil), "root is ordered")
-	}()
+	defer func(oldRootEntries []entry[K, V]) {
+		assertion.Ensure(result.IsBinaryTree(), "new root is valid binary tree")
+		assertion.Ensure(b.isOrdered(result, nil, nil), "new root is ordered")
+		e := entry[K, V]{Key: key, Value: value}
+		newRootEntries := result.ToArray()
+		assertion.Ensure(array.Contains(e, newRootEntries), "new root should contain new entry")
+		oldRootEntries = array.Remove(e, oldRootEntries, equalKey[K, V])
+		newRootEntries = array.Remove(e, newRootEntries, equalKey[K, V])
+		assertion.Ensure(b.hasSameEntries(oldRootEntries, newRootEntries), "new root should contain same entries as old root, except for new entry")
+	}(root.ToArray())
 
 	if root == nil {
 		node := tree.NewBinaryNode[entry[K, V]](entry[K, V]{Key: key, Value: value})
@@ -113,33 +139,33 @@ func (b *BSTDict[K, V]) Put(key K, value V) {
 	b.tree.Root = b.insert(b.tree.Root, key, value)
 }
 
-func (b *BSTDict[K, V]) remove(root **tree.BinaryNode[entry[K, V]]) {
-	assertion.Require(root != nil, "root is not nil")
-	assertion.Require((*root).IsBinaryTree(), "root is valid binary tree")
-	assertion.Require(b.isOrdered(*root, nil, nil), "root is ordered")
+func (b *BSTDict[K, V]) remove(pRoot **tree.BinaryNode[entry[K, V]]) {
+	assertion.Require(pRoot != nil, "root is not nil")
+	assertion.Require((*pRoot).IsBinaryTree(), "root is valid binary tree")
+	assertion.Require(b.isOrdered(*pRoot, nil, nil), "root is ordered")
 	defer func() {
-		assertion.Ensure((*root).IsBinaryTree(), "root is valid binary tree")
-		assertion.Ensure(b.isOrdered(*root, nil, nil), "root is ordered")
+		assertion.Ensure((*pRoot).IsBinaryTree(), "root is valid binary tree")
+		assertion.Ensure(b.isOrdered(*pRoot, nil, nil), "root is ordered")
 	}()
 
 	switch {
-	case (*root).Left == nil && (*root).Right == nil:
-		*root = nil
+	case (*pRoot).Left == nil && (*pRoot).Right == nil:
+		*pRoot = nil
 		return
-	case (*root).Left != nil:
-		curr := &(*root).Left
-		for (*curr).Right != nil {
-			curr = &(*curr).Right
+	case (*pRoot).Left != nil:
+		pCurr := &(*pRoot).Left
+		for (*pCurr).Right != nil {
+			pCurr = &(*pCurr).Right
 		}
-		(*root).Data = (*curr).Data
-		*curr = (*curr).Left
-	case (*root).Right != nil:
-		curr := &(*root).Right
-		for (*curr).Left != nil {
-			curr = &(*curr).Left
+		(*pRoot).Data = (*pCurr).Data
+		*pCurr = (*pCurr).Left
+	case (*pRoot).Right != nil:
+		pCurr := &(*pRoot).Right
+		for (*pCurr).Left != nil {
+			pCurr = &(*pCurr).Left
 		}
-		(*root).Data = (*curr).Data
-		*curr = (*curr).Right
+		(*pRoot).Data = (*pCurr).Data
+		*pCurr = (*pCurr).Right
 	}
 }
 

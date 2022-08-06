@@ -6,9 +6,9 @@ import (
 )
 
 func BinarySearch[T constraints.Ordered](x T, a []T) (result int) {
-	assertion.Require(isSorted(a, 0, len(a)), "a is sorted")
+	assertion.Require(IsSorted(a, 0, len(a)), "a is sorted")
 	defer func() {
-		assertion.Ensure(!isIn(x, a, 0, len(a)) && result == -1 || 0 <= result && result < len(a) && x == a[result], "result is OK")
+		assertion.Ensure(!IsIn(x, a, 0, len(a)) && result == -1 || 0 <= result && result < len(a) && x == a[result], "result is OK")
 	}()
 
 	low := 0

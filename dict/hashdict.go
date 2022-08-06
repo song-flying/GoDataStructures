@@ -127,7 +127,7 @@ func (h *HashDict[K, V]) Put(key K, value V) {
 
 	newHead := linked.NewNode(entry[K, V]{Key: key, Value: value})
 	newHead.Next = l.Head
-	l.Head = newHead
+	l.Head = &newHead
 	h.size++
 
 	if h.size >= h.capacity*h.maxLoad {

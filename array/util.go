@@ -2,6 +2,7 @@ package array
 
 import (
 	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"github.com/song-flying/GoDataStructures/searching/array"
 	"math/rand"
 	"time"
 )
@@ -173,4 +174,53 @@ func randRange(m, n int) int {
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
 	return r.Intn(n-m) + m
+}
+
+func Unique[T comparable](a []T) bool {
+	if len(a) <= 1 {
+		return true
+	}
+
+	for prev, curr := 0, 1; curr < len(a); prev, curr = prev+1, curr+1 {
+		if prev == curr {
+			return false
+		}
+	}
+
+	return true
+}
+
+func IsSubArrayOf[T comparable](a, b []T, comp array.CompareFn[T]) bool {
+	assertion.Require(array.IsSortedBy(a, comp, 0, len(a)) && array.IsSortedBy(b, comp, 0, len(b)), "a and b are both sorted")
+	assertion.Require(Unique(a) && Unique(b), "a and b's elements are all unique'")
+	for _, x := range a {
+		if array.LinearSearch(x, b, comp) < 0 {
+			return false
+		}
+	}
+
+	return true
+}
+
+func Contains[T comparable](x T, a []T) bool {
+	for _, y := range a {
+		if x == y {
+			return true
+		}
+	}
+
+	return false
+}
+
+type EqualFn[T comparable] func(x, y T) bool
+
+func Remove[T comparable](x T, a []T, equal EqualFn[T]) []T {
+	var b []T
+	for _, y := range a {
+		if !equal(x, y) {
+			b = append(b, y)
+		}
+	}
+
+	return b
 }

@@ -5,10 +5,10 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-func LinearSearch[T constraints.Ordered](x T, a []T) (result int) {
-	assertion.Require(isSorted(a, 0, len(a)), "a is sorted")
+func LinearSortedSearch[T constraints.Ordered](x T, a []T) (result int) {
+	assertion.Require(IsSorted(a, 0, len(a)), "a is sorted")
 	defer func() {
-		assertion.Ensure(0 <= result && result < len(a) && x == a[result] || !isIn(x, a, 0, len(a)) && result == -1, "result OK")
+		assertion.Ensure(0 <= result && result < len(a) && x == a[result] || !IsIn(x, a, 0, len(a)) && result == -1, "result OK")
 	}()
 
 	loopInv := func(i int) bool {
@@ -21,6 +21,16 @@ func LinearSearch[T constraints.Ordered](x T, a []T) (result int) {
 			return i
 		} else if x < a[i] {
 			return -1
+		}
+	}
+
+	return -1
+}
+
+func LinearSearch[T comparable](x T, a []T, comp CompareFn[T]) (result int) {
+	for i := 0; i < len(a); i++ {
+		if x == a[i] {
+			return i
 		}
 	}
 

@@ -23,8 +23,8 @@ func NewLinkedQueue[T any]() (result LinkedQueue[T]) {
 
 	dummy := linked.NewDummyNode[T]()
 	return LinkedQueue[T]{
-		front: dummy,
-		back:  dummy,
+		front: &dummy,
+		back:  &dummy,
 	}
 }
 
@@ -40,8 +40,9 @@ func (q *LinkedQueue[T]) Enqueue(x T) {
 		assertion.Ensure(q.IsLinkedQueue(), "queue invariant holds")
 	}()
 
+	dummy := linked.NewDummyNode[T]()
 	q.back.Data = x
-	q.back.Next = linked.NewDummyNode[T]()
+	q.back.Next = &dummy
 	q.back = q.back.Next
 }
 

@@ -7,15 +7,15 @@ type Node[T any] struct {
 	Next *Node[T]
 }
 
-func NewNode[T any](data T) *Node[T] {
-	return &Node[T]{
+func NewNode[T any](data T) Node[T] {
+	return Node[T]{
 		Data: data,
 		Next: nil,
 	}
 }
 
-func NewDummyNode[T any]() *Node[T] {
-	return &Node[T]{}
+func NewDummyNode[T any]() Node[T] {
+	return Node[T]{}
 }
 
 func Nil[T any]() *Node[T] {

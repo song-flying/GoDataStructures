@@ -28,6 +28,24 @@ func (n *BinaryNode[T]) IsBinaryTree() bool {
 	return !hasCycle(n)
 }
 
+func (n *BinaryNode[T]) ToArray() (result []T) {
+	assertion.Require(n.IsBinaryTree(), "n is valid binary tree")
+
+	if n == nil {
+		return
+	}
+
+	if n.Left != nil {
+		result = append(result, n.Left.ToArray()...)
+	}
+	result = append(result, n.Data)
+	if n.Right != nil {
+		result = append(result, n.Right.ToArray()...)
+	}
+
+	return
+}
+
 type BinaryTree[T comparable] struct {
 	Root *BinaryNode[T]
 }
@@ -74,7 +92,7 @@ func hasCycle[T comparable](root *BinaryNode[T]) bool {
 
 // IsBinaryTree data structure invariant
 func (t *BinaryTree[T]) IsBinaryTree() bool {
-	return !hasCycle(t.Root)
+	return t.Root.IsBinaryTree()
 }
 
 func NewBinaryTree[T comparable](root *BinaryNode[T]) (result BinaryTree[T]) {

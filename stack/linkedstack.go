@@ -23,8 +23,8 @@ func NewLinkedStack[T any]() (result LinkedStack[T]) {
 
 	dummy := linked.NewDummyNode[T]()
 	return LinkedStack[T]{
-		top:    dummy,
-		bottom: dummy,
+		top:    &dummy,
+		bottom: &dummy,
 	}
 }
 
@@ -40,7 +40,7 @@ func (s *LinkedStack[T]) Push(x T) {
 
 	l := linked.NewNode(x)
 	l.Next = s.top
-	s.top = l
+	s.top = &l
 }
 
 func (s *LinkedStack[T]) Pop() (result T) {
