@@ -6,15 +6,15 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-type Comparator[T constraints.Ordered] func(x, y T) int
+type CompareFn[T constraints.Ordered] func(x, y T) int
 
-type BinarySearchTree[K constraints.Ordered, V comparable] struct {
+type BSTDict[K constraints.Ordered, V comparable] struct {
 	tree *tree.BinaryTree[entry[K, V]]
-	comp Comparator[K]
+	comp CompareFn[K]
 	size int
 }
 
-func (b *BinarySearchTree[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], lower, upper *K) bool {
+func (b *BSTDict[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], lower, upper *K) bool {
 	assertion.Require(b.comp != nil, "comparison function is not nil")
 	assertion.Require(lower == nil || upper == nil || b.comp(*lower, *upper) < 0, "lower < upper")
 
@@ -28,27 +28,27 @@ func (b *BinarySearchTree[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], l
 		(upper == nil || b.comp(key, *upper) < 0) && b.isOrdered(root.Right, &key, upper)
 }
 
-// IsBinarySearchTree data structure invariant
-func (b *BinarySearchTree[K, V]) IsBinarySearchTree() bool {
+// IsBSTDict data structure invariant
+func (b *BSTDict[K, V]) IsBSTDict() bool {
 	return b.tree != nil && b.comp != nil && b.tree.IsBinaryTree() && b.isOrdered(b.tree.Root, nil, nil)
 }
 
-func NewBinarySearchTree[K constraints.Ordered, V comparable](comp Comparator[K]) (result BinarySearchTree[K, V]) {
+func NewBSTDict[K constraints.Ordered, V comparable](comp CompareFn[K]) (result BSTDict[K, V]) {
 	assertion.Require(comp != nil, "comparison function is not nil")
 	defer func() {
-		assertion.Ensure(result.IsBinarySearchTree(), "BST invariant holds")
+		assertion.Ensure(result.IsBSTDict(), "BST invariant holds")
 	}()
 
 	t := tree.NewBinaryTree(tree.Nil[entry[K, V]]())
-	return BinarySearchTree[K, V]{
+	return BSTDict[K, V]{
 		tree: &t,
 		comp: comp,
 		size: 0,
 	}
 }
 
-func (b *BinarySearchTree[K, V]) lookup(root **tree.BinaryNode[entry[K, V]], key K) **tree.BinaryNode[entry[K, V]] {
-	assertion.Require(b.IsBinarySearchTree(), "BST invariant holds")
+func (b *BSTDict[K, V]) lookup(root **tree.BinaryNode[entry[K, V]], key K) **tree.BinaryNode[entry[K, V]] {
+	assertion.Require(b.IsBSTDict(), "BST invariant holds")
 
 	if *root == nil {
 		return nil
@@ -65,8 +65,8 @@ func (b *BinarySearchTree[K, V]) lookup(root **tree.BinaryNode[entry[K, V]], key
 	}
 }
 
-func (b *BinarySearchTree[K, V]) Get(key K) (V, bool) {
-	assertion.Require(b.IsBinarySearchTree(), "BST invariant holds")
+func (b *BSTDict[K, V]) Get(key K) (V, bool) {
+	assertion.Require(b.IsBSTDict(), "BST invariant holds")
 
 	node := b.lookup(&b.tree.Root, key)
 	if node != nil {
@@ -75,7 +75,7 @@ func (b *BinarySearchTree[K, V]) Get(key K) (V, bool) {
 	return *new(V), false
 }
 
-func (b *BinarySearchTree[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value V) *tree.BinaryNode[entry[K, V]] {
+func (b *BSTDict[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value V) *tree.BinaryNode[entry[K, V]] {
 	if root == nil {
 		node := tree.NewBinaryNode[entry[K, V]](entry[K, V]{Key: key, Value: value})
 		b.size++
@@ -95,10 +95,10 @@ func (b *BinarySearchTree[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key 
 	return root
 }
 
-func (b *BinarySearchTree[K, V]) Put(key K, value V) {
-	assertion.Require(b.IsBinarySearchTree(), "BST invariant holds")
+func (b *BSTDict[K, V]) Put(key K, value V) {
+	assertion.Require(b.IsBSTDict(), "BST invariant holds")
 	defer func() {
-		assertion.Ensure(b.IsBinarySearchTree(), "BST invariant holds")
+		assertion.Ensure(b.IsBSTDict(), "BST invariant holds")
 		v, ok := b.Get(key)
 		assertion.Ensure(ok && value == v, "Get(key) returns value")
 	}()
@@ -106,7 +106,7 @@ func (b *BinarySearchTree[K, V]) Put(key K, value V) {
 	b.tree.Root = b.insert(b.tree.Root, key, value)
 }
 
-func (b *BinarySearchTree[K, V]) remove(root **tree.BinaryNode[entry[K, V]]) {
+func (b *BSTDict[K, V]) remove(root **tree.BinaryNode[entry[K, V]]) {
 	assertion.Require(root != nil, "root node is not nil")
 
 	switch {
@@ -130,10 +130,10 @@ func (b *BinarySearchTree[K, V]) remove(root **tree.BinaryNode[entry[K, V]]) {
 	}
 }
 
-func (b *BinarySearchTree[K, V]) Delete(key K) {
-	assertion.Require(b.IsBinarySearchTree(), "BST invariant holds")
+func (b *BSTDict[K, V]) Delete(key K) {
+	assertion.Require(b.IsBSTDict(), "BST invariant holds")
 	defer func() {
-		assertion.Ensure(b.IsBinarySearchTree(), "BST invariant holds")
+		assertion.Ensure(b.IsBSTDict(), "BST invariant holds")
 		_, ok := b.Get(key)
 		assertion.Ensure(!ok, "Get(key) returns no value")
 	}()
@@ -147,8 +147,8 @@ func (b *BinarySearchTree[K, V]) Delete(key K) {
 	b.size--
 }
 
-func (b *BinarySearchTree[K, V]) Size() (result int) {
-	assertion.Require(b.IsBinarySearchTree(), "BST invariant holds")
+func (b *BSTDict[K, V]) Size() (result int) {
+	assertion.Require(b.IsBSTDict(), "BST invariant holds")
 	defer func() {
 		assertion.Ensure(0 <= result, "result is non-negative")
 	}()

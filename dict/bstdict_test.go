@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-func TestBinarySearchTree(t *testing.T) {
-	dict := NewBinarySearchTree[int, string](func(m, n int) int { return m - n })
+func TestBSTDict(t *testing.T) {
+	dict := NewBSTDict[int, string](func(m, n int) int { return m - n })
 	v, ok := dict.Get(1)
 	assert.False(t, ok)
 	assert.Equal(t, "", v)
