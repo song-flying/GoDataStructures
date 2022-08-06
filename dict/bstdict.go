@@ -76,6 +76,13 @@ func (b *BSTDict[K, V]) Get(key K) (V, bool) {
 }
 
 func (b *BSTDict[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value V) *tree.BinaryNode[entry[K, V]] {
+	assertion.Require(root.IsBinaryTree(), "root is valid binary tree")
+	assertion.Require(b.isOrdered(root, nil, nil), "root is ordered")
+	defer func() {
+		assertion.Ensure(root.IsBinaryTree(), "root is valid binary tree")
+		assertion.Ensure(b.isOrdered(root, nil, nil), "root is ordered")
+	}()
+
 	if root == nil {
 		node := tree.NewBinaryNode[entry[K, V]](entry[K, V]{Key: key, Value: value})
 		b.size++
@@ -107,7 +114,13 @@ func (b *BSTDict[K, V]) Put(key K, value V) {
 }
 
 func (b *BSTDict[K, V]) remove(root **tree.BinaryNode[entry[K, V]]) {
-	assertion.Require(root != nil, "root node is not nil")
+	assertion.Require(root != nil, "root is not nil")
+	assertion.Require((*root).IsBinaryTree(), "root is valid binary tree")
+	assertion.Require(b.isOrdered(*root, nil, nil), "root is ordered")
+	defer func() {
+		assertion.Ensure((*root).IsBinaryTree(), "root is valid binary tree")
+		assertion.Ensure(b.isOrdered(*root, nil, nil), "root is ordered")
+	}()
 
 	switch {
 	case (*root).Left == nil && (*root).Right == nil:

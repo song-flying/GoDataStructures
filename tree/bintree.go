@@ -23,6 +23,11 @@ func Nil[T comparable]() *BinaryNode[T] {
 	return nil
 }
 
+// IsBinaryTree data structure invariant
+func (n *BinaryNode[T]) IsBinaryTree() bool {
+	return !hasCycle(n)
+}
+
 type BinaryTree[T comparable] struct {
 	Root *BinaryNode[T]
 }

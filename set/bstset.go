@@ -73,6 +73,13 @@ func (b *BSTSet[E]) Contains(key E) bool {
 }
 
 func (b *BSTSet[E]) insert(root *tree.BinaryNode[E], key E) *tree.BinaryNode[E] {
+	assertion.Require(root.IsBinaryTree(), "root is valid binary tree")
+	assertion.Require(b.isOrdered(root, nil, nil), "root is ordered")
+	defer func() {
+		assertion.Ensure(root.IsBinaryTree(), "root is valid binary tree")
+		assertion.Ensure(b.isOrdered(root, nil, nil), "root is ordered")
+	}()
+
 	if root == nil {
 		node := tree.NewBinaryNode[E](key)
 		b.size++
@@ -104,6 +111,13 @@ func (b *BSTSet[E]) Add(key E) {
 
 func (b *BSTSet[E]) remove(root **tree.BinaryNode[E]) {
 	assertion.Require(root != nil, "root node is not nil")
+	assertion.Require(root != nil, "root is not nil")
+	assertion.Require((*root).IsBinaryTree(), "root is valid binary tree")
+	assertion.Require(b.isOrdered(*root, nil, nil), "root is ordered")
+	defer func() {
+		assertion.Ensure((*root).IsBinaryTree(), "root is valid binary tree")
+		assertion.Ensure(b.isOrdered(*root, nil, nil), "root is ordered")
+	}()
 
 	switch {
 	case (*root).Left == nil && (*root).Right == nil:
