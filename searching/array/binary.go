@@ -1,14 +1,15 @@
 package array
 
 import (
+	"github.com/song-flying/GoDataStructures/array"
 	"github.com/song-flying/GoDataStructures/pkg/assertion"
-	"golang.org/x/exp/constraints"
+	"github.com/song-flying/GoDataStructures/pkg/order"
 )
 
-func BinarySearch[T constraints.Ordered](x T, a []T) (result int) {
-	assertion.Require(IsSorted(a, 0, len(a)), "a is sorted")
+func BinarySearch[T comparable](x T, a []T, comp order.CompareFn[T]) (result int) {
+	assertion.Require(array.IsRangeSorted(a, 0, len(a), comp), "a is sorted")
 	defer func() {
-		assertion.Ensure(!IsIn(x, a, 0, len(a)) && result == -1 || 0 <= result && result < len(a) && x == a[result], "result is OK")
+		assertion.Ensure(!array.IsIn(x, a, 0, len(a)) && result == -1 || 0 <= result && result < len(a) && x == a[result], "result is OK")
 	}()
 
 	low := 0
@@ -16,8 +17,8 @@ func BinarySearch[T constraints.Ordered](x T, a []T) (result int) {
 
 	loopInv := func(low, high int) bool {
 		assertion.Invariant(0 <= low && low <= high && high <= len(a), "low and high are within bound")
-		assertion.Invariant(low == 0 || a[low-1] < x, "x is larger than any element from a[0, low)")
-		assertion.Invariant(high == len(a) || a[high] > x, "x is smaller than any element from a[high,len(a))")
+		assertion.Invariant(low == 0 || comp(a[low-1], x) < 0, "x is larger than any element from a[0, low)")
+		assertion.Invariant(high == len(a) || comp(a[high], x) > 0, "x is smaller than any element from a[high,len(a))")
 		return true
 	}
 	for loopInv(low, high) && low < high {
@@ -26,7 +27,7 @@ func BinarySearch[T constraints.Ordered](x T, a []T) (result int) {
 
 		if a[mid] == x {
 			return mid
-		} else if a[mid] < x {
+		} else if comp(a[mid], x) < 0 {
 			low = mid + 1
 		} else { // a[mid] > x
 			high = mid

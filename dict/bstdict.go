@@ -3,21 +3,20 @@ package dict
 import (
 	"github.com/song-flying/GoDataStructures/array"
 	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"github.com/song-flying/GoDataStructures/pkg/order"
 	"github.com/song-flying/GoDataStructures/tree"
-	"golang.org/x/exp/constraints"
 )
 
-type CompareFn[T constraints.Ordered] func(x, y T) int
-
-type BSTDict[K constraints.Ordered, V comparable] struct {
-	tree *tree.BinaryTree[entry[K, V]]
-	comp CompareFn[K]
-	size int
+type BSTDict[K comparable, V comparable] struct {
+	tree      *tree.BinaryTree[entry[K, V]]
+	keyComp   order.CompareFn[K]
+	entryComp order.CompareFn[entry[K, V]]
+	size      int
 }
 
 func (b *BSTDict[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], lower, upper *K) bool {
-	assertion.Require(b.comp != nil, "comparison function is not nil")
-	assertion.Require(lower == nil || upper == nil || b.comp(*lower, *upper) < 0, "lower < upper")
+	assertion.Require(b.keyComp != nil, "comparison function is not nil")
+	assertion.Require(lower == nil || upper == nil || b.keyComp(*lower, *upper) < 0, "lower < upper")
 
 	if root == nil {
 		return true
@@ -25,41 +24,72 @@ func (b *BSTDict[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], lower, upp
 
 	key := root.Data.Key
 
-	return (lower == nil || b.comp(*lower, key) < 0) && b.isOrdered(root.Left, lower, &key) &&
-		(upper == nil || b.comp(key, *upper) < 0) && b.isOrdered(root.Right, &key, upper)
+	return (lower == nil || b.keyComp(*lower, key) < 0) && b.isOrdered(root.Left, lower, &key) &&
+		(upper == nil || b.keyComp(key, *upper) < 0) && b.isOrdered(root.Right, &key, upper)
 }
 
-func entryComparator[K constraints.Ordered, V comparable](x, y entry[K, V]) int {
-	switch {
-	case x.Key == y.Key:
-		return 0
-	case x.Key < y.Key:
-		return -1
-	default: //x > y
-		return 1
+func (b *BSTDict[K, V]) isOrderedHasMinMax(root *tree.BinaryNode[entry[K, V]]) (minKey, maxKey *K, isOrdered bool) {
+	assertion.Require(b.keyComp != nil, "comparison function is not nil")
+	assertion.Require(root.IsBinaryTree(), "root is a binary tree")
+
+	if root == nil {
+		return nil, nil, true
 	}
+
+	if root.Left != nil {
+		leftMinKey, leftMaxKey, leftIsOrdered := b.isOrderedHasMinMax(root.Left)
+		if !leftIsOrdered || b.keyComp(*leftMaxKey, root.Data.Key) >= 0 {
+			return nil, nil, false
+		} else {
+			minKey = leftMinKey
+		}
+	} else {
+		minKey = &root.Data.Key
+	}
+
+	if root.Right != nil {
+		rightMinKey, rightMaxKey, rightIsOrdered := b.isOrderedHasMinMax(root.Right)
+		if !rightIsOrdered || b.keyComp(*rightMinKey, root.Data.Key) <= 0 {
+			return nil, nil, false
+		} else {
+			maxKey = rightMaxKey
+		}
+	} else {
+		maxKey = &root.Data.Key
+	}
+
+	return minKey, maxKey, true
 }
 
 func (b *BSTDict[K, V]) hasSameEntries(a1, a2 []entry[K, V]) bool {
-	return len(a1) == len(a2) && array.IsSubArrayOf(a1, a2, entryComparator[K, V])
+	assertion.Require(array.IsSorted(a1, b.entryComp) && array.IsDistinct(a1, b.entryComp), "a1 is sorted & distinct")
+	assertion.Require(array.IsSorted(a2, b.entryComp) && array.IsDistinct(a2, b.entryComp), "a2 is sorted & distinct")
+
+	return array.Same(a1, a2)
 }
 
 // IsBSTDict data structure invariant
 func (b *BSTDict[K, V]) IsBSTDict() bool {
-	return b.tree != nil && b.comp != nil && b.tree.IsBinaryTree() && b.isOrdered(b.tree.Root, nil, nil)
+	_, _, isOrdered := b.isOrderedHasMinMax(b.tree.Root)
+	return b.tree != nil && b.keyComp != nil && b.entryComp != nil && b.tree.IsBinaryTree() && isOrdered
 }
 
-func NewBSTDict[K constraints.Ordered, V comparable](comp CompareFn[K]) (result BSTDict[K, V]) {
+func NewBSTDict[K comparable, V comparable](comp order.CompareFn[K]) (result BSTDict[K, V]) {
 	assertion.Require(comp != nil, "comparison function is not nil")
 	defer func() {
 		assertion.Ensure(result.IsBSTDict(), "BST invariant holds")
 	}()
 
 	t := tree.NewBinaryTree(tree.Nil[entry[K, V]]())
+	entryComp := func(e1, e2 entry[K, V]) int {
+		return comp(e1.Key, e2.Key)
+	}
+
 	return BSTDict[K, V]{
-		tree: &t,
-		comp: comp,
-		size: 0,
+		tree:      &t,
+		keyComp:   comp,
+		entryComp: entryComp,
+		size:      0,
 	}
 }
 
@@ -70,7 +100,7 @@ func (b *BSTDict[K, V]) lookup(root **tree.BinaryNode[entry[K, V]], key K) **tre
 		return nil
 	}
 
-	compResult := b.comp(key, (*root).Data.Key)
+	compResult := b.keyComp(key, (*root).Data.Key)
 	switch {
 	case compResult == 0:
 		return root
@@ -91,23 +121,41 @@ func (b *BSTDict[K, V]) Get(key K) (V, bool) {
 	return *new(V), false
 }
 
-func equalKey[K comparable, V comparable](e1, e2 entry[K, V]) bool {
-	return e1.Key == e2.Key
+func (b *BSTDict[K, V]) ToArray(root *tree.BinaryNode[entry[K, V]]) (result []entry[K, V]) {
+	assertion.Require(b.IsBSTDict(), "BST invariant holds")
+	defer func() {
+		assertion.Ensure(array.IsSorted(result, b.entryComp), "result entries are sorted")
+	}()
+	if root == nil {
+		return
+	}
+
+	if root.Left != nil {
+		result = append(result, b.ToArray(root.Left)...)
+	}
+	result = append(result, root.Data)
+	if root.Right != nil {
+		result = append(result, b.ToArray(root.Right)...)
+	}
+
+	return
 }
 
 func (b *BSTDict[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value V) (result *tree.BinaryNode[entry[K, V]]) {
 	assertion.Require(root.IsBinaryTree(), "root is valid binary tree")
-	assertion.Require(b.isOrdered(root, nil, nil), "root is ordered")
-	defer func(oldRootEntries []entry[K, V]) {
+	_, _, isOrdered := b.isOrderedHasMinMax(root)
+	assertion.Require(isOrdered, "root tree is ordered")
+	defer func(oldEntries []entry[K, V]) {
 		assertion.Ensure(result.IsBinaryTree(), "new root is valid binary tree")
-		assertion.Ensure(b.isOrdered(result, nil, nil), "new root is ordered")
+		_, _, isOrdered := b.isOrderedHasMinMax(result)
+		assertion.Ensure(isOrdered, "new root is ordered")
 		e := entry[K, V]{Key: key, Value: value}
-		newRootEntries := result.ToArray()
-		assertion.Ensure(array.Contains(e, newRootEntries), "new root should contain new entry")
-		oldRootEntries = array.Remove(e, oldRootEntries, equalKey[K, V])
-		newRootEntries = array.Remove(e, newRootEntries, equalKey[K, V])
-		assertion.Ensure(b.hasSameEntries(oldRootEntries, newRootEntries), "new root should contain same entries as old root, except for new entry")
-	}(root.ToArray())
+		newEntries := b.ToArray(result)
+		assertion.Ensure(array.Contains(e, newEntries, b.entryComp), "new root should contain new entry")
+		oldEntries = array.Filter(e, oldEntries, b.entryComp)
+		newEntries = array.Filter(e, newEntries, b.entryComp)
+		assertion.Ensure(b.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root, except for new entry")
+	}(b.ToArray(root))
 
 	if root == nil {
 		node := tree.NewBinaryNode[entry[K, V]](entry[K, V]{Key: key, Value: value})
@@ -115,7 +163,7 @@ func (b *BSTDict[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value 
 		return &node
 	}
 
-	compResult := b.comp(key, root.Data.Key)
+	compResult := b.keyComp(key, root.Data.Key)
 	switch {
 	case compResult == 0:
 		root.Data.Value = value
@@ -139,33 +187,69 @@ func (b *BSTDict[K, V]) Put(key K, value V) {
 	b.tree.Root = b.insert(b.tree.Root, key, value)
 }
 
+func (b *BSTDict[K, V]) maxNode(root **tree.BinaryNode[entry[K, V]]) (result **tree.BinaryNode[entry[K, V]]) {
+	assertion.Require(b.keyComp != nil && b.entryComp != nil, "comparison function is not nil")
+	assertion.Require(root != nil && *root != nil, "root points to some node")
+	_, maxKey, isOrdered := b.isOrderedHasMinMax(*root)
+	assertion.Require(isOrdered, "root node is ordered")
+	defer func(maxKey *K) {
+		assertion.Ensure(result != nil && (*result) != nil, "result points to some node")
+		assertion.Ensure((*result).Right == nil, "result node is the right most one")
+		assertion.Ensure((*result).Data.Key == *maxKey, "result node has max key")
+	}(maxKey)
+
+	curr := root
+	for (*curr).Right != nil {
+		curr = &(*curr).Right
+	}
+	return curr
+}
+
+func (b *BSTDict[K, V]) minNode(root **tree.BinaryNode[entry[K, V]]) (result **tree.BinaryNode[entry[K, V]]) {
+	assertion.Require(b.keyComp != nil && b.entryComp != nil, "comparison function is not nil")
+	assertion.Require(root != nil && *root != nil, "root points to some node")
+	minKey, _, isOrdered := b.isOrderedHasMinMax(*root)
+	assertion.Require(isOrdered, "root node is ordered")
+	defer func(minKey *K) {
+		assertion.Ensure(result != nil && (*result) != nil, "result points to some node")
+		assertion.Ensure((*result).Left == nil, "result node is the left most one")
+		assertion.Ensure((*result).Data.Key == *minKey, "result node has min key")
+	}(minKey)
+
+	curr := root
+	for (*curr).Left != nil {
+		curr = &(*curr).Left
+	}
+	return curr
+}
+
 func (b *BSTDict[K, V]) remove(pRoot **tree.BinaryNode[entry[K, V]]) {
-	assertion.Require(pRoot != nil, "root is not nil")
+	assertion.Require(pRoot != nil && *pRoot != nil, "root is not nil")
 	assertion.Require((*pRoot).IsBinaryTree(), "root is valid binary tree")
-	assertion.Require(b.isOrdered(*pRoot, nil, nil), "root is ordered")
-	defer func() {
+	_, _, isOrdered := b.isOrderedHasMinMax(*pRoot)
+	assertion.Require(isOrdered, "root is ordered")
+	defer func(targetEntry entry[K, V], oldEntries []entry[K, V]) {
 		assertion.Ensure((*pRoot).IsBinaryTree(), "root is valid binary tree")
-		assertion.Ensure(b.isOrdered(*pRoot, nil, nil), "root is ordered")
-	}()
+		_, _, isOrdered := b.isOrderedHasMinMax(*pRoot)
+		assertion.Ensure(isOrdered, "root is ordered")
+		newEntries := b.ToArray(*pRoot)
+		assertion.Ensure(!array.Contains(targetEntry, newEntries, b.entryComp), "root tree does not contain removed entry")
+		oldEntries = array.Filter(targetEntry, oldEntries, b.entryComp)
+		assertion.Ensure(b.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root excluding removed entry")
+	}((*pRoot).Data, b.ToArray(*pRoot))
 
 	switch {
 	case (*pRoot).Left == nil && (*pRoot).Right == nil:
 		*pRoot = nil
 		return
 	case (*pRoot).Left != nil:
-		pCurr := &(*pRoot).Left
-		for (*pCurr).Right != nil {
-			pCurr = &(*pCurr).Right
-		}
-		(*pRoot).Data = (*pCurr).Data
-		*pCurr = (*pCurr).Left
+		pMax := b.maxNode(&(*pRoot).Left)
+		(*pRoot).Data = (*pMax).Data
+		*pMax = (*pMax).Left
 	case (*pRoot).Right != nil:
-		pCurr := &(*pRoot).Right
-		for (*pCurr).Left != nil {
-			pCurr = &(*pCurr).Left
-		}
-		(*pRoot).Data = (*pCurr).Data
-		*pCurr = (*pCurr).Right
+		pMin := b.minNode(&(*pRoot).Right)
+		(*pRoot).Data = (*pMin).Data
+		*pMin = (*pMin).Right
 	}
 }
 

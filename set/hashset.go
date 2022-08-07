@@ -114,7 +114,7 @@ func (h *HashSet[E]) Add(x E) {
 
 	newHead := linked.NewNode(x)
 	newHead.Next = l.Head
-	l.Head = newHead
+	l.Head = &newHead
 	h.size++
 
 	if h.size >= h.capacity*h.maxLoad {

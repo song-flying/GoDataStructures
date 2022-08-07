@@ -7,7 +7,7 @@ import (
 )
 
 func BinarySearch[T constraints.Ordered](x T, l *linked.List[T]) (result int) {
-	assertion.Require(!l.HasCycle(), "l has no cycle")
+	assertion.Require(l.IsList(), "list invariant holds")
 
 	if l.IsEmpty() {
 		return -1

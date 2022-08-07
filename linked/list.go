@@ -22,13 +22,18 @@ func Nil[T any]() *Node[T] {
 	return nil
 }
 
+// IsList data structure invariant
+func (n *Node[T]) IsList() bool {
+	return !HasCycle(n)
+}
+
 type List[T any] struct {
 	Head *Node[T]
 }
 
 // IsList data structure invariant
 func (l *List[T]) IsList() bool {
-	return !HasCycle(l.Head)
+	return l.Head.IsList()
 }
 
 func NewEmptyList[T any]() (result List[T]) {

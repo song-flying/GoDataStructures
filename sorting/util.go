@@ -1,12 +1,15 @@
 package sorting
 
-import "github.com/song-flying/GoDataStructures/pkg/assertion"
+import (
+	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"github.com/song-flying/GoDataStructures/pkg/order"
+)
 
-func isSorted(a []int, low, high int) bool {
+func isSorted[T comparable](a []T, low, high int, comp order.CompareFn[T]) bool {
 	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bound")
 
 	for i := low; i < high-1; i++ {
-		if a[i] > a[i+1] {
+		if comp(a[i], a[i+1]) > 0 {
 			return false
 		}
 	}
@@ -14,10 +17,10 @@ func isSorted(a []int, low, high int) bool {
 	return true
 }
 
-func swap(a []int, i, j int) {
+func swap[T comparable](a []T, i, j int) {
 	assertion.Require(0 <= i && i < len(a), "i is within bound")
 	assertion.Require(0 <= j && j < len(a), "j is within bound")
-	defer func(oldAi, oldAj int) {
+	defer func(oldAi, oldAj T) {
 		assertion.Ensure(a[i] == oldAj && a[j] == oldAi, "elements at i, j are swapped")
 	}(a[i], a[j])
 
@@ -28,13 +31,11 @@ func swap(a []int, i, j int) {
 	return
 }
 
-type compareFn = func(x, y int) bool
-
-func elementCompareTo(x int, a []int, low, high int, comparer compareFn) bool {
+func elementLessThanOrEqual[T comparable](x T, a []T, low, high int, comp order.CompareFn[T]) bool {
 	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bound")
 
 	for i := low; i < high; i++ {
-		if !comparer(x, a[i]) {
+		if comp(x, a[i]) > 0 {
 			return false
 		}
 	}
@@ -42,36 +43,24 @@ func elementCompareTo(x int, a []int, low, high int, comparer compareFn) bool {
 	return true
 }
 
-func elementLessThanOrEqual(x int, a []int, low, high int) bool {
-	return elementCompareTo(x, a, low, high, func(x, y int) bool {
-		return x <= y
-	})
+func elementGreaterThanOrEqual[T comparable](x T, a []T, low, high int, comp order.CompareFn[T]) bool {
+	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bound")
+
+	for i := low; i < high; i++ {
+		if comp(x, a[i]) < 0 {
+			return false
+		}
+	}
+
+	return true
 }
 
-func elementLessThan(x int, a []int, low, high int) bool {
-	return elementCompareTo(x, a, low, high, func(x, y int) bool {
-		return x < y
-	})
-}
-
-func elementGreaterThanOrEqual(x int, a []int, low, high int) bool {
-	return elementCompareTo(x, a, low, high, func(x, y int) bool {
-		return x >= y
-	})
-}
-
-func elementGreaterThan(x int, a []int, low, high int) bool {
-	return elementCompareTo(x, a, low, high, func(x, y int) bool {
-		return x > y
-	})
-}
-
-func rangeLessOrEqual(a []int, lowA, highA int, b []int, lowB, highB int) bool {
+func rangeLessOrEqual[T comparable](a []T, lowA, highA int, b []T, lowB, highB int, comp order.CompareFn[T]) bool {
 	assertion.Require(0 <= lowA && lowA <= highA && highA <= len(a), "lowA and highA are within bound")
 	assertion.Require(0 <= lowB && lowB <= highB && highB <= len(b), "lowB and highB are within bound")
 
 	for i := lowA; i < highA; i++ {
-		if !elementLessThanOrEqual(a[i], b, lowB, highB) {
+		if !elementLessThanOrEqual(a[i], b, lowB, highB, comp) {
 			return false
 		}
 	}

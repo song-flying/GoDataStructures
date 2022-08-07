@@ -1,6 +1,7 @@
 package array
 
 import (
+	"github.com/song-flying/GoDataStructures/pkg/order"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -77,24 +78,24 @@ func TestCopyInto(t *testing.T) {
 
 func TestFindMax(t *testing.T) {
 	a := []int{5, 3, 7, 1}
-	i := FindMax(a, 4)
+	i := FindMax(a, 4, order.IntComp)
 	assert.Equal(t, 2, i)
 
 	a = []int{1, 2, 3}
-	i = FindMax(a, 3)
+	i = FindMax(a, 3, order.IntComp)
 	assert.Equal(t, 2, i)
 
 	a = []int{3, 2, 1}
-	i = FindMax(a, 3)
+	i = FindMax(a, 3, order.IntComp)
 	assert.Equal(t, 0, i)
 
 	a = []int{1}
-	i = FindMax(a, 1)
+	i = FindMax(a, 1, order.IntComp)
 	assert.Equal(t, 0, i)
 
 	a = []int{}
 	assert.Panics(t, func() {
-		_ = FindMax(a, 0)
+		_ = FindMax(a, 0, order.IntComp)
 	})
 }
 

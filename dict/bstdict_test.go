@@ -3,7 +3,6 @@ package dict
 import (
 	"github.com/song-flying/GoDataStructures/array"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"testing"
 )
 
@@ -56,13 +55,13 @@ func TestBSTDict(t *testing.T) {
 		assert.Equal(t, i+1, dict.Size())
 	}
 
-	log.Printf("tree after insertion = %s", dict.tree.String())
+	t.Logf("tree after insertion = %s", dict.tree.String())
 
 	for _, i := range a {
 		dict.Delete(i)
 		_, ok := dict.Get(i)
 		assert.False(t, ok)
 		assert.Equal(t, 10-i-1, dict.Size())
-		log.Printf("tree after removal of key %d = %s", i, dict.tree.String())
+		t.Logf("tree after removal of key %d = %s", i, dict.tree.String())
 	}
 }

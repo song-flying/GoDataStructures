@@ -2,7 +2,7 @@ package array
 
 import (
 	"github.com/song-flying/GoDataStructures/pkg/assertion"
-	"github.com/song-flying/GoDataStructures/searching/array"
+	"github.com/song-flying/GoDataStructures/pkg/order"
 	"math/rand"
 	"time"
 )
@@ -26,18 +26,18 @@ func Cubes(n int) (result []int) {
 	return result
 }
 
-func CopyArray(a []int, n int) (result []int) {
+func CopyArray[T comparable](a []T, n int) (result []T) {
 	assertion.Require(n == len(a), "len(a) = n")
 	defer func() {
 		assertion.Ensure(len(result) == n, "len(result) = n")
-		assertion.Ensure(same(a, 0, n, result, 0, n), "a[0,n) = result[0,n)")
+		assertion.Ensure(sameRange(a, 0, n, result, 0, n), "a[0,n) = result[0,n)")
 	}()
 
-	result = make([]int, n)
+	result = make([]T, n)
 
 	loopInv := func(i int) bool {
 		assertion.Invariant(0 <= i && i <= n, "0 <= i <= n")
-		assertion.Invariant(same(a, 0, i, result, 0, i), "result[0,i] = a[0,i]")
+		assertion.Invariant(sameRange(a, 0, i, result, 0, i), "result[0,i] = a[0,i]")
 		return true
 	}
 	for i := 0; loopInv(i) && i < n; i++ {
@@ -47,7 +47,11 @@ func CopyArray(a []int, n int) (result []int) {
 	return
 }
 
-func same(a []int, lowA, highA int, b []int, lowB, highB int) bool {
+func Same[T comparable](a []T, b []T) bool {
+	return sameRange(a, 0, len(a), b, 0, len(b))
+}
+
+func sameRange[T comparable](a []T, lowA, highA int, b []T, lowB, highB int) bool {
 	assertion.Require(0 <= lowA && lowA <= highA && highA <= len(a), "a's low and high within bound")
 	assertion.Require(0 <= lowB && lowB <= highB && highB <= len(a), "b's low and high within bound")
 	assertion.Require(highA-lowA == highB-lowB, "a and b's segment's length are the same")
@@ -67,19 +71,19 @@ func same(a []int, lowA, highA int, b []int, lowB, highB int) bool {
 	return true
 }
 
-func SubArray(a []int, low, high int) (result []int) {
+func SubArray[T comparable](a []T, low, high int) (result []T) {
 	assertion.Require(0 <= low && low <= high && high <= len(a), "low & high are in range")
 	defer func() {
-		assertion.Ensure(same(a, low, high, result, 0, len(result)), "result[0, len) = a[low,high)")
+		assertion.Ensure(sameRange(a, low, high, result, 0, len(result)), "result[0, len) = a[low,high)")
 	}()
 
-	result = make([]int, high-low)
+	result = make([]T, high-low)
 
 	loopInv := func(i, j int) bool {
 		assertion.Invariant(low <= i && i <= high, "i is within bound")
 		assertion.Invariant(0 <= j && j <= high-low, "j is within bound")
 		assertion.Invariant(j-0 == i-low, "i and j moves at same speed")
-		assertion.Invariant(same(a, low, i, result, 0, j), "result[0,j] = a[low,i]")
+		assertion.Invariant(sameRange(a, low, i, result, 0, j), "result[0,j] = a[low,i]")
 		return true
 	}
 	for i, j := low, 0; loopInv(i, j) && i < high; i++ {
@@ -90,12 +94,12 @@ func SubArray(a []int, low, high int) (result []int) {
 	return
 }
 
-func CopyInto(src []int, i, n int, dst []int, j int) (result int) {
+func CopyInto[T comparable](src []T, i, n int, dst []T, j int) (result int) {
 	assertion.Require(0 <= n, "n >= 0")
 	assertion.Require(0 <= i && i+n <= len(src), "0 <= i && i+n <= len(src)")
 	assertion.Require(0 <= j && j+n <= len(dst), "0 <= j && j+n <= len(dst)")
 	defer func() {
-		assertion.Ensure(same(src, i, i+n, dst, j, j+n), "src[i, i+n) = dst[j,j+n)")
+		assertion.Ensure(sameRange(src, i, i+n, dst, j, j+n), "src[i, i+n) = dst[j,j+n)")
 		assertion.Ensure(n == 0 && (result == -1) || n > 0 && (result == j+n-1), "result OK")
 	}()
 
@@ -108,7 +112,7 @@ func CopyInto(src []int, i, n int, dst []int, j int) (result int) {
 		assertion.Invariant(i <= k && k <= i+n, "i <= k <= i+n")
 		assertion.Invariant(j <= l && l <= j+n, "j <= l <= j+n")
 		assertion.Invariant(k-i == l-j, "k-i == l-j")
-		assertion.Invariant(same(src, i, k, dst, j, l), "src[i,k] = dst[j,l]")
+		assertion.Invariant(sameRange(src, i, k, dst, j, l), "src[i,k] = dst[j,l]")
 		return true
 	}
 	for ; loopInv(k, l) && k < i+n; k, l = k+1, l+1 {
@@ -119,13 +123,13 @@ func CopyInto(src []int, i, n int, dst []int, j int) (result int) {
 }
 
 // specification function
-func isMax(maxIndex int, a []int, n int) bool {
+func isMax[T comparable](maxIndex int, a []T, n int, comp order.CompareFn[T]) bool {
 	assertion.Require(0 <= n && n <= len(a), "0 <= n <= len(a)")
 	assertion.Require(0 <= maxIndex && maxIndex < n, "maxIndex is within bound")
 
 	max := a[maxIndex]
 	for i := 0; i < n; i++ {
-		if a[i] > max {
+		if comp(a[i], max) > 0 {
 			return false
 		}
 	}
@@ -133,11 +137,11 @@ func isMax(maxIndex int, a []int, n int) bool {
 	return true
 }
 
-func FindMax(a []int, n int) (result int) {
+func FindMax[T comparable](a []T, n int, comp order.CompareFn[T]) (result int) {
 	assertion.Require(0 < n && n == len(a), "0 < n = len(a)")
 	defer func() {
 		assertion.Ensure(0 <= result && result < n, "result is within bound")
-		assertion.Ensure(isMax(result, a, n), "result is index of max element")
+		assertion.Ensure(isMax(result, a, n, comp), "result is index of max element")
 	}()
 
 	maxIndex := 0
@@ -145,11 +149,11 @@ func FindMax(a []int, n int) (result int) {
 
 	loopInv := func(i int) bool {
 		assertion.Invariant(1 <= i && i <= n, "i is within bound")
-		assertion.Invariant(isMax(maxIndex, a, i), "maxIndex is index of max element for a[0,i)")
+		assertion.Invariant(isMax(maxIndex, a, i, comp), "maxIndex is index of max element for a[0,i)")
 		return true
 	}
 	for i := 1; loopInv(i) && i < n; i++ {
-		if a[i] > maxVal {
+		if comp(a[i], maxVal) > 0 {
 			maxIndex = i
 			maxVal = a[i]
 		}
@@ -176,7 +180,9 @@ func randRange(m, n int) int {
 	return r.Intn(n-m) + m
 }
 
-func Unique[T comparable](a []T) bool {
+func IsDistinct[T comparable](a []T, comp order.CompareFn[T]) bool {
+	assertion.Require(IsRangeSorted(a, 0, len(a), comp), "a is sorted")
+
 	if len(a) <= 1 {
 		return true
 	}
@@ -190,21 +196,9 @@ func Unique[T comparable](a []T) bool {
 	return true
 }
 
-func IsSubArrayOf[T comparable](a, b []T, comp array.CompareFn[T]) bool {
-	assertion.Require(array.IsSortedBy(a, comp, 0, len(a)) && array.IsSortedBy(b, comp, 0, len(b)), "a and b are both sorted")
-	assertion.Require(Unique(a) && Unique(b), "a and b's elements are all unique'")
-	for _, x := range a {
-		if array.LinearSearch(x, b, comp) < 0 {
-			return false
-		}
-	}
-
-	return true
-}
-
-func Contains[T comparable](x T, a []T) bool {
+func Contains[T comparable](x T, a []T, comp order.CompareFn[T]) bool {
 	for _, y := range a {
-		if x == y {
+		if comp(x, y) == 0 {
 			return true
 		}
 	}
@@ -212,15 +206,52 @@ func Contains[T comparable](x T, a []T) bool {
 	return false
 }
 
-type EqualFn[T comparable] func(x, y T) bool
-
-func Remove[T comparable](x T, a []T, equal EqualFn[T]) []T {
+func Filter[T comparable](x T, a []T, comp order.CompareFn[T]) []T {
 	var b []T
 	for _, y := range a {
-		if !equal(x, y) {
+		if comp(x, y) != 0 {
 			b = append(b, y)
 		}
 	}
 
 	return b
+}
+
+// IsIn specification function
+func IsIn[T comparable](x T, a []T, low, high int) bool {
+	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bounds")
+
+	loopInv := func(i int) bool {
+		assertion.Invariant(low <= i && i <= high, "i is within bound")
+		return true
+	}
+	for i := low; loopInv(i) && i < high; i++ {
+		if x == a[i] {
+			return true
+		}
+	}
+
+	return false
+}
+
+func IsSorted[T comparable](a []T, comp order.CompareFn[T]) bool {
+	return IsRangeSorted(a, 0, len(a), comp)
+}
+
+// IsRangeSorted specification function
+func IsRangeSorted[T comparable](a []T, low, high int, comp order.CompareFn[T]) bool {
+	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bound")
+
+	loopInv := func(i int) bool {
+		assertion.Invariant(low <= i, "i is within lower bound")
+		return true
+	}
+	for i := low; loopInv(i) && i < high-1; i++ {
+		assertion.Check(i < high-1, "i is within upper bound")
+		if comp(a[i], a[i+1]) > 0 {
+			return false
+		}
+	}
+
+	return true
 }
