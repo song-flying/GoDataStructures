@@ -2,7 +2,7 @@ package set
 
 import (
 	"github.com/song-flying/GoDataStructures/linked"
-	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"github.com/song-flying/GoDataStructures/pkg/contract"
 )
 
 type HashFn[E comparable] func(E) int
@@ -44,11 +44,11 @@ func (h *HashSet[E]) isHashSet() bool {
 }
 
 func NewHashSet[E comparable](capacity int, hashFn HashFn[E], maxLoad int) (result HashSet[E]) {
-	assertion.Require(0 < capacity, "capacity is positive")
-	assertion.Require(0 < maxLoad, "maxLoad is positive")
-	assertion.Require(hashFn != nil, "hash function is not nil")
+	contract.Require(0 < capacity, "capacity is positive")
+	contract.Require(0 < maxLoad, "maxLoad is positive")
+	contract.Require(hashFn != nil, "hash function is not nil")
 	defer func() {
-		assertion.Ensure(result.isHashSet(), "hash set invariant holds")
+		contract.Ensure(result.isHashSet(), "hash set invariant holds")
 	}()
 
 	table := make([]linked.List[E], capacity)
@@ -63,7 +63,7 @@ func NewHashSet[E comparable](capacity int, hashFn HashFn[E], maxLoad int) (resu
 
 func abs(x int) (result int) {
 	defer func() {
-		assertion.Ensure(result >= 0, "result is non-negative")
+		contract.Ensure(result >= 0, "result is non-negative")
 	}()
 
 	if x >= 0 {
@@ -74,17 +74,17 @@ func abs(x int) (result int) {
 }
 
 func (h *HashSet[E]) indexOfElement(key E) (result int) {
-	assertion.Require(h.hashFn != nil, "hash function is not nil")
-	assertion.Require(h.capacity > 0, "capacity is positive")
+	contract.Require(h.hashFn != nil, "hash function is not nil")
+	contract.Require(h.capacity > 0, "capacity is positive")
 	defer func() {
-		assertion.Ensure(0 <= result && result < h.capacity, "result is within bound")
+		contract.Ensure(0 <= result && result < h.capacity, "result is within bound")
 	}()
 
 	return abs(h.hashFn(key) % h.capacity)
 }
 
 func (h *HashSet[E]) Contains(x E) bool {
-	assertion.Require(h.isHashSet(), "hash set invariant holds")
+	contract.Require(h.isHashSet(), "hash set invariant holds")
 
 	index := h.indexOfElement(x)
 	l := &h.table[index]
@@ -98,10 +98,10 @@ func (h *HashSet[E]) Contains(x E) bool {
 }
 
 func (h *HashSet[E]) Add(x E) {
-	assertion.Require(h.isHashSet(), "hash set invariant holds")
+	contract.Require(h.isHashSet(), "hash set invariant holds")
 	defer func() {
-		assertion.Ensure(h.isHashSet(), "hash set invariant holds")
-		assertion.Ensure(h.Contains(x), "hash set contains element x")
+		contract.Ensure(h.isHashSet(), "hash set invariant holds")
+		contract.Ensure(h.Contains(x), "hash set contains element x")
 	}()
 
 	index := h.indexOfElement(x)
@@ -123,10 +123,10 @@ func (h *HashSet[E]) Add(x E) {
 }
 
 func (h *HashSet[E]) Remove(x E) {
-	assertion.Require(h.isHashSet(), "hash set invariant holds")
+	contract.Require(h.isHashSet(), "hash set invariant holds")
 	defer func() {
-		assertion.Ensure(h.isHashSet(), "hash set invariant holds")
-		assertion.Ensure(!h.Contains(x), "hash set does not contain element x")
+		contract.Ensure(h.isHashSet(), "hash set invariant holds")
+		contract.Ensure(!h.Contains(x), "hash set does not contain element x")
 	}()
 
 	index := h.indexOfElement(x)
@@ -158,20 +158,20 @@ func (h *HashSet[E]) Remove(x E) {
 }
 
 func (h *HashSet[E]) Size() (result int) {
-	assertion.Require(h.isHashSet(), "hash set invariant holds")
+	contract.Require(h.isHashSet(), "hash set invariant holds")
 	defer func() {
-		assertion.Ensure(result >= 0, "result is non-negative")
+		contract.Ensure(result >= 0, "result is non-negative")
 	}()
 
 	return h.size
 }
 
 func (h *HashSet[E]) resize(newCapacity int) {
-	assertion.Require(h.isHashSet(), "hash set invariant holds")
+	contract.Require(h.isHashSet(), "hash set invariant holds")
 	defer func(oldSize int) {
-		assertion.Ensure(h.isHashSet(), "hash set invariant holds")
-		assertion.Ensure(oldSize == h.size, "resize does not change count of entries")
-		assertion.Ensure(newCapacity == h.capacity, "resize changes capacity")
+		contract.Ensure(h.isHashSet(), "hash set invariant holds")
+		contract.Ensure(oldSize == h.size, "resize does not change count of entries")
+		contract.Ensure(newCapacity == h.capacity, "resize changes capacity")
 	}(h.size)
 
 	if newCapacity == h.capacity {

@@ -2,7 +2,7 @@ package stack
 
 import (
 	"github.com/song-flying/GoDataStructures/linked"
-	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"github.com/song-flying/GoDataStructures/pkg/contract"
 )
 
 type LinkedStack[T any] struct {
@@ -17,8 +17,8 @@ func (s *LinkedStack[T]) IsLinkedStack() bool {
 
 func NewLinkedStack[T any]() (result LinkedStack[T]) {
 	defer func() {
-		assertion.Ensure(result.IsLinkedStack(), "stack invariant holds")
-		assertion.Ensure(result.IsEmpty(), "new stack is empty")
+		contract.Ensure(result.IsLinkedStack(), "stack invariant holds")
+		contract.Ensure(result.IsEmpty(), "new stack is empty")
 	}()
 
 	dummy := linked.NewDummyNode[T]()
@@ -33,9 +33,9 @@ func (s *LinkedStack[T]) IsEmpty() bool {
 }
 
 func (s *LinkedStack[T]) Push(x T) {
-	assertion.Require(s.IsLinkedStack(), "stack invariant holds")
+	contract.Require(s.IsLinkedStack(), "stack invariant holds")
 	defer func() {
-		assertion.Ensure(s.IsLinkedStack(), "stack invariant holds")
+		contract.Ensure(s.IsLinkedStack(), "stack invariant holds")
 	}()
 
 	l := linked.NewNode(x)
@@ -44,10 +44,10 @@ func (s *LinkedStack[T]) Push(x T) {
 }
 
 func (s *LinkedStack[T]) Pop() (result T) {
-	assertion.Require(s.IsLinkedStack(), "stack invariant holds")
-	assertion.Require(!s.IsEmpty(), "stack is not empty")
+	contract.Require(s.IsLinkedStack(), "stack invariant holds")
+	contract.Require(!s.IsEmpty(), "stack is not empty")
 	defer func() {
-		assertion.Ensure(s.IsLinkedStack(), "stack invariant holds")
+		contract.Ensure(s.IsLinkedStack(), "stack invariant holds")
 	}()
 
 	result = s.top.Data
@@ -57,8 +57,8 @@ func (s *LinkedStack[T]) Pop() (result T) {
 }
 
 func (s *LinkedStack[T]) Peek() T {
-	assertion.Require(s.IsLinkedStack(), "stack invariant holds")
-	assertion.Require(!s.IsEmpty(), "stack is not empty")
+	contract.Require(s.IsLinkedStack(), "stack invariant holds")
+	contract.Require(!s.IsEmpty(), "stack is not empty")
 
 	return s.top.Data
 }

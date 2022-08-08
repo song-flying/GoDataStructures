@@ -1,4 +1,4 @@
-package assertion
+package contract
 
 import "fmt"
 
@@ -43,14 +43,14 @@ func Invariantf(b bool, msg string, args ...any) {
 	}
 }
 
-func Check(b bool, msg string) {
+func Assert(b bool, msg string) {
 	if On && !b {
 		panic("assertion violation: " + msg)
 	}
 }
 
-// Checkf can be used for debugging to print the actual values
-func Checkf(b bool, msg string, args ...any) {
+// Assertf can be used for debugging to print the actual values
+func Assertf(b bool, msg string, args ...any) {
 	if On && !b {
 		panic(fmt.Sprintf("assertion violation: "+msg, args...))
 	}

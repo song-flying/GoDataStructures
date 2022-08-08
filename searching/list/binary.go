@@ -2,12 +2,12 @@ package list
 
 import (
 	"github.com/song-flying/GoDataStructures/linked"
-	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"github.com/song-flying/GoDataStructures/pkg/contract"
 	"golang.org/x/exp/constraints"
 )
 
 func BinarySearch[T constraints.Ordered](x T, l *linked.List[T]) (result int) {
-	assertion.Require(l.IsList(), "list invariant holds")
+	contract.Require(l.IsList(), "list invariant holds")
 
 	if l.IsEmpty() {
 		return -1
@@ -17,9 +17,9 @@ func BinarySearch[T constraints.Ordered](x T, l *linked.List[T]) (result int) {
 }
 
 func BinarySearchSegment[T constraints.Ordered](x T, start, end *linked.Node[T]) (result int) {
-	assertion.Require(linked.IsSegmentSorted(start, end), "segment [start,end) is sorted")
+	contract.Require(linked.IsSegmentSorted(start, end), "segment [start,end) is sorted")
 	defer func() {
-		assertion.Ensure(
+		contract.Ensure(
 			result == -1 && !linked.IsInSegment(x, start, end) ||
 				0 <= result && result < linked.LengthOfSegment(start, end) && linked.IthSegment(start, result) == x,
 			"result is OK")
@@ -30,7 +30,7 @@ func BinarySearchSegment[T constraints.Ordered](x T, start, end *linked.Node[T])
 
 	for low < high {
 		mid := low + (high-low)/2
-		assertion.Check(low <= mid && mid < high, "mid is within [low, high)")
+		contract.Assert(low <= mid && mid < high, "mid is within [low, high)")
 		midVal := linked.IthSegment(start, mid)
 
 		if midVal == x {

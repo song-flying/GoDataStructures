@@ -1,7 +1,7 @@
 package sorting
 
 import (
-	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"github.com/song-flying/GoDataStructures/pkg/contract"
 	"github.com/song-flying/GoDataStructures/pkg/order"
 )
 
@@ -10,14 +10,14 @@ func InsertionSort[T comparable](a []T, comp order.CompareFn[T]) {
 }
 
 func InsertionSortRange[T comparable](a []T, low, high int, comp order.CompareFn[T]) {
-	assertion.Require(0 <= low && low <= high && high <= len(a), "low and high are within bound")
+	contract.Require(0 <= low && low <= high && high <= len(a), "low and high are within bound")
 	defer func() {
-		assertion.Ensure(isSorted(a, low, high, comp), "a[low,high) is sorted")
+		contract.Ensure(isSorted(a, low, high, comp), "a[low,high) is sorted")
 	}()
 
 	loopInv := func(i int) bool {
-		assertion.Invariant(low <= i && i <= high, "i is within bound")
-		assertion.Invariant(isSorted(a, low, i, comp), "a[low, i) is sorted")
+		contract.Invariant(low <= i && i <= high, "i is within bound")
+		contract.Invariant(isSorted(a, low, i, comp), "a[low, i) is sorted")
 		return true
 	}
 	for i := low; loopInv(i) && i < high; i++ {
@@ -26,17 +26,17 @@ func InsertionSortRange[T comparable](a []T, low, high int, comp order.CompareFn
 }
 
 func insert[T comparable](a []T, low int, curr int, comp order.CompareFn[T]) {
-	assertion.Require(0 <= low && low <= curr && curr < len(a), "low and i are within bound")
-	assertion.Require(isSorted(a, low, curr, comp), "a[low,curr) is sorted")
+	contract.Require(0 <= low && low <= curr && curr < len(a), "low and i are within bound")
+	contract.Require(isSorted(a, low, curr, comp), "a[low,curr) is sorted")
 	defer func() {
-		assertion.Ensure(isSorted(a, low, curr+1, comp), "a[low,curr] is sorted")
+		contract.Ensure(isSorted(a, low, curr+1, comp), "a[low,curr] is sorted")
 	}()
 
 	loopInv := func(i int) bool {
-		assertion.Invariant(low <= i && i <= curr, "i is within bound")
-		assertion.Invariant(isSorted(a, low, i, comp), "a[low,i) is sorted")
-		assertion.Invariant(isSorted(a, i, curr, comp), "a[i,curr] is sorted")
-		assertion.Invariant(rangeLessOrEqual(a, low, i, a, i+1, curr+1, comp), "a[low, i) <= a(i, curr]")
+		contract.Invariant(low <= i && i <= curr, "i is within bound")
+		contract.Invariant(isSorted(a, low, i, comp), "a[low,i) is sorted")
+		contract.Invariant(isSorted(a, i, curr, comp), "a[i,curr] is sorted")
+		contract.Invariant(rangeLessOrEqual(a, low, i, a, i+1, curr+1, comp), "a[low, i) <= a(i, curr]")
 		return true
 	}
 	for i := curr; loopInv(i) && i > low; i-- {

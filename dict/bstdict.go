@@ -2,7 +2,7 @@ package dict
 
 import (
 	"github.com/song-flying/GoDataStructures/array"
-	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"github.com/song-flying/GoDataStructures/pkg/contract"
 	"github.com/song-flying/GoDataStructures/pkg/order"
 	"github.com/song-flying/GoDataStructures/tree"
 )
@@ -15,8 +15,8 @@ type BSTDict[K comparable, V comparable] struct {
 }
 
 func (b *BSTDict[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], lower, upper *K) bool {
-	assertion.Require(b.keyComp != nil, "comparison function is not nil")
-	assertion.Require(lower == nil || upper == nil || b.keyComp(*lower, *upper) < 0, "lower < upper")
+	contract.Require(b.keyComp != nil, "comparison function is not nil")
+	contract.Require(lower == nil || upper == nil || b.keyComp(*lower, *upper) < 0, "lower < upper")
 
 	if root == nil {
 		return true
@@ -29,8 +29,8 @@ func (b *BSTDict[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], lower, upp
 }
 
 func (b *BSTDict[K, V]) isOrderedHasMinMax(root *tree.BinaryNode[entry[K, V]]) (minKey, maxKey *K, isOrdered bool) {
-	assertion.Require(b.keyComp != nil, "comparison function is not nil")
-	assertion.Require(root.IsBinaryTree(), "root is a binary tree")
+	contract.Require(b.keyComp != nil, "comparison function is not nil")
+	contract.Require(root.IsBinaryTree(), "root is a binary tree")
 
 	if root == nil {
 		return nil, nil, true
@@ -62,8 +62,8 @@ func (b *BSTDict[K, V]) isOrderedHasMinMax(root *tree.BinaryNode[entry[K, V]]) (
 }
 
 func (b *BSTDict[K, V]) hasSameEntries(a1, a2 []entry[K, V]) bool {
-	assertion.Require(array.IsSorted(a1, b.entryComp) && array.IsDistinct(a1, b.entryComp), "a1 is sorted & distinct")
-	assertion.Require(array.IsSorted(a2, b.entryComp) && array.IsDistinct(a2, b.entryComp), "a2 is sorted & distinct")
+	contract.Require(array.IsSorted(a1, b.entryComp) && array.IsDistinct(a1, b.entryComp), "a1 is sorted & distinct")
+	contract.Require(array.IsSorted(a2, b.entryComp) && array.IsDistinct(a2, b.entryComp), "a2 is sorted & distinct")
 
 	return array.Same(a1, a2)
 }
@@ -75,9 +75,9 @@ func (b *BSTDict[K, V]) IsBSTDict() bool {
 }
 
 func NewBSTDict[K comparable, V comparable](comp order.CompareFn[K]) (result BSTDict[K, V]) {
-	assertion.Require(comp != nil, "comparison function is not nil")
+	contract.Require(comp != nil, "comparison function is not nil")
 	defer func() {
-		assertion.Ensure(result.IsBSTDict(), "BST invariant holds")
+		contract.Ensure(result.IsBSTDict(), "BST invariant holds")
 	}()
 
 	t := tree.NewBinaryTree(tree.Nil[entry[K, V]]())
@@ -94,7 +94,7 @@ func NewBSTDict[K comparable, V comparable](comp order.CompareFn[K]) (result BST
 }
 
 func (b *BSTDict[K, V]) lookup(root **tree.BinaryNode[entry[K, V]], key K) **tree.BinaryNode[entry[K, V]] {
-	assertion.Require(b.IsBSTDict(), "BST invariant holds")
+	contract.Require(b.IsBSTDict(), "BST invariant holds")
 
 	if *root == nil {
 		return nil
@@ -112,7 +112,7 @@ func (b *BSTDict[K, V]) lookup(root **tree.BinaryNode[entry[K, V]], key K) **tre
 }
 
 func (b *BSTDict[K, V]) Get(key K) (V, bool) {
-	assertion.Require(b.IsBSTDict(), "BST invariant holds")
+	contract.Require(b.IsBSTDict(), "BST invariant holds")
 
 	node := b.lookup(&b.tree.Root, key)
 	if node != nil {
@@ -122,9 +122,9 @@ func (b *BSTDict[K, V]) Get(key K) (V, bool) {
 }
 
 func (b *BSTDict[K, V]) ToArray(root *tree.BinaryNode[entry[K, V]]) (result []entry[K, V]) {
-	assertion.Require(b.IsBSTDict(), "BST invariant holds")
+	contract.Require(b.IsBSTDict(), "BST invariant holds")
 	defer func() {
-		assertion.Ensure(array.IsSorted(result, b.entryComp), "result entries are sorted")
+		contract.Ensure(array.IsSorted(result, b.entryComp), "result entries are sorted")
 	}()
 	if root == nil {
 		return
@@ -142,19 +142,19 @@ func (b *BSTDict[K, V]) ToArray(root *tree.BinaryNode[entry[K, V]]) (result []en
 }
 
 func (b *BSTDict[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value V) (result *tree.BinaryNode[entry[K, V]]) {
-	assertion.Require(root.IsBinaryTree(), "root is valid binary tree")
+	contract.Require(root.IsBinaryTree(), "root is valid binary tree")
 	_, _, isOrdered := b.isOrderedHasMinMax(root)
-	assertion.Require(isOrdered, "root tree is ordered")
+	contract.Require(isOrdered, "root tree is ordered")
 	defer func(oldEntries []entry[K, V]) {
-		assertion.Ensure(result.IsBinaryTree(), "new root is valid binary tree")
+		contract.Ensure(result.IsBinaryTree(), "new root is valid binary tree")
 		_, _, isOrdered := b.isOrderedHasMinMax(result)
-		assertion.Ensure(isOrdered, "new root is ordered")
+		contract.Ensure(isOrdered, "new root is ordered")
 		e := entry[K, V]{Key: key, Value: value}
 		newEntries := b.ToArray(result)
-		assertion.Ensure(array.Contains(e, newEntries, b.entryComp), "new root should contain new entry")
+		contract.Ensure(array.ContainsBy(e, newEntries, b.entryComp), "new root should contain new entry")
 		oldEntries = array.Filter(e, oldEntries, b.entryComp)
 		newEntries = array.Filter(e, newEntries, b.entryComp)
-		assertion.Ensure(b.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root, except for new entry")
+		contract.Ensure(b.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root, except for new entry")
 	}(b.ToArray(root))
 
 	if root == nil {
@@ -177,25 +177,25 @@ func (b *BSTDict[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value 
 }
 
 func (b *BSTDict[K, V]) Put(key K, value V) {
-	assertion.Require(b.IsBSTDict(), "BST invariant holds")
+	contract.Require(b.IsBSTDict(), "BST invariant holds")
 	defer func() {
-		assertion.Ensure(b.IsBSTDict(), "BST invariant holds")
+		contract.Ensure(b.IsBSTDict(), "BST invariant holds")
 		v, ok := b.Get(key)
-		assertion.Ensure(ok && value == v, "Get(key) returns value")
+		contract.Ensure(ok && value == v, "Get(key) returns value")
 	}()
 
 	b.tree.Root = b.insert(b.tree.Root, key, value)
 }
 
 func (b *BSTDict[K, V]) maxNode(root **tree.BinaryNode[entry[K, V]]) (result **tree.BinaryNode[entry[K, V]]) {
-	assertion.Require(b.keyComp != nil && b.entryComp != nil, "comparison function is not nil")
-	assertion.Require(root != nil && *root != nil, "root points to some node")
+	contract.Require(b.keyComp != nil && b.entryComp != nil, "comparison function is not nil")
+	contract.Require(root != nil && *root != nil, "root points to some node")
 	_, maxKey, isOrdered := b.isOrderedHasMinMax(*root)
-	assertion.Require(isOrdered, "root node is ordered")
+	contract.Require(isOrdered, "root node is ordered")
 	defer func(maxKey *K) {
-		assertion.Ensure(result != nil && (*result) != nil, "result points to some node")
-		assertion.Ensure((*result).Right == nil, "result node is the right most one")
-		assertion.Ensure((*result).Data.Key == *maxKey, "result node has max key")
+		contract.Ensure(result != nil && (*result) != nil, "result points to some node")
+		contract.Ensure((*result).Right == nil, "result node is the right most one")
+		contract.Ensure((*result).Data.Key == *maxKey, "result node has max key")
 	}(maxKey)
 
 	curr := root
@@ -206,14 +206,14 @@ func (b *BSTDict[K, V]) maxNode(root **tree.BinaryNode[entry[K, V]]) (result **t
 }
 
 func (b *BSTDict[K, V]) minNode(root **tree.BinaryNode[entry[K, V]]) (result **tree.BinaryNode[entry[K, V]]) {
-	assertion.Require(b.keyComp != nil && b.entryComp != nil, "comparison function is not nil")
-	assertion.Require(root != nil && *root != nil, "root points to some node")
+	contract.Require(b.keyComp != nil && b.entryComp != nil, "comparison function is not nil")
+	contract.Require(root != nil && *root != nil, "root points to some node")
 	minKey, _, isOrdered := b.isOrderedHasMinMax(*root)
-	assertion.Require(isOrdered, "root node is ordered")
+	contract.Require(isOrdered, "root node is ordered")
 	defer func(minKey *K) {
-		assertion.Ensure(result != nil && (*result) != nil, "result points to some node")
-		assertion.Ensure((*result).Left == nil, "result node is the left most one")
-		assertion.Ensure((*result).Data.Key == *minKey, "result node has min key")
+		contract.Ensure(result != nil && (*result) != nil, "result points to some node")
+		contract.Ensure((*result).Left == nil, "result node is the left most one")
+		contract.Ensure((*result).Data.Key == *minKey, "result node has min key")
 	}(minKey)
 
 	curr := root
@@ -224,18 +224,18 @@ func (b *BSTDict[K, V]) minNode(root **tree.BinaryNode[entry[K, V]]) (result **t
 }
 
 func (b *BSTDict[K, V]) remove(pRoot **tree.BinaryNode[entry[K, V]]) {
-	assertion.Require(pRoot != nil && *pRoot != nil, "root is not nil")
-	assertion.Require((*pRoot).IsBinaryTree(), "root is valid binary tree")
+	contract.Require(pRoot != nil && *pRoot != nil, "root is not nil")
+	contract.Require((*pRoot).IsBinaryTree(), "root is valid binary tree")
 	_, _, isOrdered := b.isOrderedHasMinMax(*pRoot)
-	assertion.Require(isOrdered, "root is ordered")
+	contract.Require(isOrdered, "root is ordered")
 	defer func(targetEntry entry[K, V], oldEntries []entry[K, V]) {
-		assertion.Ensure((*pRoot).IsBinaryTree(), "root is valid binary tree")
+		contract.Ensure((*pRoot).IsBinaryTree(), "root is valid binary tree")
 		_, _, isOrdered := b.isOrderedHasMinMax(*pRoot)
-		assertion.Ensure(isOrdered, "root is ordered")
+		contract.Ensure(isOrdered, "root is ordered")
 		newEntries := b.ToArray(*pRoot)
-		assertion.Ensure(!array.Contains(targetEntry, newEntries, b.entryComp), "root tree does not contain removed entry")
+		contract.Ensure(!array.ContainsBy(targetEntry, newEntries, b.entryComp), "root tree does not contain removed entry")
 		oldEntries = array.Filter(targetEntry, oldEntries, b.entryComp)
-		assertion.Ensure(b.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root excluding removed entry")
+		contract.Ensure(b.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root excluding removed entry")
 	}((*pRoot).Data, b.ToArray(*pRoot))
 
 	switch {
@@ -254,11 +254,11 @@ func (b *BSTDict[K, V]) remove(pRoot **tree.BinaryNode[entry[K, V]]) {
 }
 
 func (b *BSTDict[K, V]) Delete(key K) {
-	assertion.Require(b.IsBSTDict(), "BST invariant holds")
+	contract.Require(b.IsBSTDict(), "BST invariant holds")
 	defer func() {
-		assertion.Ensure(b.IsBSTDict(), "BST invariant holds")
+		contract.Ensure(b.IsBSTDict(), "BST invariant holds")
 		_, ok := b.Get(key)
-		assertion.Ensure(!ok, "Get(key) returns no value")
+		contract.Ensure(!ok, "Get(key) returns no value")
 	}()
 
 	target := b.lookup(&b.tree.Root, key)
@@ -271,9 +271,9 @@ func (b *BSTDict[K, V]) Delete(key K) {
 }
 
 func (b *BSTDict[K, V]) Size() (result int) {
-	assertion.Require(b.IsBSTDict(), "BST invariant holds")
+	contract.Require(b.IsBSTDict(), "BST invariant holds")
 	defer func() {
-		assertion.Ensure(0 <= result, "result is non-negative")
+		contract.Ensure(0 <= result, "result is non-negative")
 	}()
 
 	return b.size

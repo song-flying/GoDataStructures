@@ -1,6 +1,6 @@
 package linked
 
-import "github.com/song-flying/GoDataStructures/pkg/assertion"
+import "github.com/song-flying/GoDataStructures/pkg/contract"
 
 type Node[T any] struct {
 	Data T
@@ -37,13 +37,13 @@ func (l *List[T]) IsList() bool {
 }
 
 func NewEmptyList[T any]() (result List[T]) {
-	assertion.Ensure(result.IsList(), "list invariant holds")
+	contract.Ensure(result.IsList(), "list invariant holds")
 
 	return List[T]{}
 }
 
 func NewList[T any](head *Node[T]) (result List[T]) {
-	assertion.Ensure(result.IsList(), "list invariant holds")
+	contract.Ensure(result.IsList(), "list invariant holds")
 
 	return List[T]{
 		Head: head,
@@ -51,14 +51,14 @@ func NewList[T any](head *Node[T]) (result List[T]) {
 }
 
 func (l *List[T]) IsEmpty() bool {
-	assertion.Require(l.IsList(), "list invariant holds")
+	contract.Require(l.IsList(), "list invariant holds")
 
 	return l.Head == nil
 }
 
 func (l *List[T]) Length() (result int) {
-	assertion.Require(l.IsList(), "list invariant holds")
-	assertion.Ensure(0 <= result, "result is non-negative")
+	contract.Require(l.IsList(), "list invariant holds")
+	contract.Ensure(0 <= result, "result is non-negative")
 
 	if l.Head == nil {
 		return 0
@@ -68,8 +68,8 @@ func (l *List[T]) Length() (result int) {
 }
 
 func (l *List[T]) Ith(i int) T {
-	assertion.Require(l.IsList(), "list invariant holds")
-	assertion.Require(0 <= i && i < l.Length(), "i is within bound")
+	contract.Require(l.IsList(), "list invariant holds")
+	contract.Require(0 <= i && i < l.Length(), "i is within bound")
 
 	return IthSegment(l.Head, i)
 }

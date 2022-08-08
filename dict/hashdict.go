@@ -2,7 +2,7 @@ package dict
 
 import (
 	"github.com/song-flying/GoDataStructures/linked"
-	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"github.com/song-flying/GoDataStructures/pkg/contract"
 )
 
 type HashFn[K comparable] func(K) int
@@ -54,11 +54,11 @@ func (h *HashDict[K, V]) IsHashDict() bool {
 }
 
 func NewHashDict[K comparable, V comparable](capacity int, hashFn HashFn[K], maxLoad int) (result HashDict[K, V]) {
-	assertion.Require(0 < capacity, "capacity is positive")
-	assertion.Require(0 < maxLoad, "maxLoad is positive")
-	assertion.Require(hashFn != nil, "hash function is not nil")
+	contract.Require(0 < capacity, "capacity is positive")
+	contract.Require(0 < maxLoad, "maxLoad is positive")
+	contract.Require(hashFn != nil, "hash function is not nil")
 	defer func() {
-		assertion.Ensure(result.IsHashDict(), "hash dict invariant holds")
+		contract.Ensure(result.IsHashDict(), "hash dict invariant holds")
 	}()
 
 	table := make([]linked.List[entry[K, V]], capacity)
@@ -73,7 +73,7 @@ func NewHashDict[K comparable, V comparable](capacity int, hashFn HashFn[K], max
 
 func abs(x int) (result int) {
 	defer func() {
-		assertion.Ensure(result >= 0, "result is non-negative")
+		contract.Ensure(result >= 0, "result is non-negative")
 	}()
 
 	if x >= 0 {
@@ -84,17 +84,17 @@ func abs(x int) (result int) {
 }
 
 func (h *HashDict[K, V]) indexOfKey(key K) (result int) {
-	assertion.Require(h.hashFn != nil, "hash function is not nil")
-	assertion.Require(h.capacity > 0, "capacity is positive")
+	contract.Require(h.hashFn != nil, "hash function is not nil")
+	contract.Require(h.capacity > 0, "capacity is positive")
 	defer func() {
-		assertion.Ensure(0 <= result && result < h.capacity, "result is within bound")
+		contract.Ensure(0 <= result && result < h.capacity, "result is within bound")
 	}()
 
 	return abs(h.hashFn(key) % h.capacity)
 }
 
 func (h *HashDict[K, V]) Get(key K) (result V, found bool) {
-	assertion.Require(h.IsHashDict(), "hash dict invariant holds")
+	contract.Require(h.IsHashDict(), "hash dict invariant holds")
 
 	index := h.indexOfKey(key)
 	l := &h.table[index]
@@ -109,11 +109,11 @@ func (h *HashDict[K, V]) Get(key K) (result V, found bool) {
 }
 
 func (h *HashDict[K, V]) Put(key K, value V) {
-	assertion.Require(h.IsHashDict(), "hash dict invariant holds")
+	contract.Require(h.IsHashDict(), "hash dict invariant holds")
 	defer func() {
-		assertion.Ensure(h.IsHashDict(), "hash dict invariant holds")
+		contract.Ensure(h.IsHashDict(), "hash dict invariant holds")
 		v, ok := h.Get(key)
-		assertion.Ensure(ok && v == value, "Get(key) returns value")
+		contract.Ensure(ok && v == value, "Get(key) returns value")
 	}()
 
 	index := h.indexOfKey(key)
@@ -136,11 +136,11 @@ func (h *HashDict[K, V]) Put(key K, value V) {
 }
 
 func (h *HashDict[K, V]) Delete(key K) {
-	assertion.Require(h.IsHashDict(), "hash dict invariant holds")
+	contract.Require(h.IsHashDict(), "hash dict invariant holds")
 	defer func() {
-		assertion.Ensure(h.IsHashDict(), "hash dict invariant holds")
+		contract.Ensure(h.IsHashDict(), "hash dict invariant holds")
 		_, ok := h.Get(key)
-		assertion.Ensure(!ok, "Get() returns no value for key")
+		contract.Ensure(!ok, "Get() returns no value for key")
 	}()
 
 	index := h.indexOfKey(key)
@@ -172,20 +172,20 @@ func (h *HashDict[K, V]) Delete(key K) {
 }
 
 func (h *HashDict[K, V]) Size() (result int) {
-	assertion.Require(h.IsHashDict(), "hash dict invariant holds")
+	contract.Require(h.IsHashDict(), "hash dict invariant holds")
 	defer func() {
-		assertion.Ensure(result >= 0, "result is non-negative")
+		contract.Ensure(result >= 0, "result is non-negative")
 	}()
 
 	return h.size
 }
 
 func (h *HashDict[K, V]) resize(newCapacity int) {
-	assertion.Require(h.IsHashDict(), "hash dict invariant holds")
+	contract.Require(h.IsHashDict(), "hash dict invariant holds")
 	defer func(oldSize int) {
-		assertion.Ensure(h.IsHashDict(), "hash dict invariant holds")
-		assertion.Ensure(oldSize == h.size, "resize does not change count of entries")
-		assertion.Ensure(newCapacity == h.capacity, "resize changes capacity")
+		contract.Ensure(h.IsHashDict(), "hash dict invariant holds")
+		contract.Ensure(oldSize == h.size, "resize does not change count of entries")
+		contract.Ensure(newCapacity == h.capacity, "resize changes capacity")
 	}(h.size)
 
 	if newCapacity == h.capacity {

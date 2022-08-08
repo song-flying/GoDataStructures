@@ -2,7 +2,7 @@ package tree
 
 import (
 	"encoding/json"
-	"github.com/song-flying/GoDataStructures/pkg/assertion"
+	"github.com/song-flying/GoDataStructures/pkg/contract"
 	"github.com/song-flying/GoDataStructures/stack"
 	"strconv"
 )
@@ -38,7 +38,7 @@ func (n *BinaryNode[T]) IsBinaryTree() bool {
 }
 
 func (n *BinaryNode[T]) ToArrayPreorder() (result []T) {
-	assertion.Require(n.IsBinaryTree(), "n is valid binary tree")
+	contract.Require(n.IsBinaryTree(), "n is valid binary tree")
 
 	var nodesVisited []*BinaryNode[T]
 	defer func() {
@@ -87,7 +87,7 @@ func (n *BinaryNode[T]) ToArrayPreorder() (result []T) {
 }
 
 func (n *BinaryNode[T]) ToArrayInorder() (result []T) {
-	assertion.Require(n.IsBinaryTree(), "n is valid binary tree")
+	contract.Require(n.IsBinaryTree(), "n is valid binary tree")
 
 	var nodesVisited []*BinaryNode[T]
 	defer func() {
@@ -126,7 +126,7 @@ func (n *BinaryNode[T]) ToArrayInorder() (result []T) {
 }
 
 func (n *BinaryNode[T]) ToArrayPostorder() (result []T) {
-	assertion.Require(n.IsBinaryTree(), "n is valid binary tree")
+	contract.Require(n.IsBinaryTree(), "n is valid binary tree")
 
 	var nodesVisited []*BinaryNode[T]
 	defer func() {
@@ -194,7 +194,7 @@ func (t *BinaryTree[T]) IsBinaryTree() bool {
 
 func NewBinaryTree[T comparable](root *BinaryNode[T]) (result BinaryTree[T]) {
 	defer func() {
-		assertion.Ensure(result.IsBinaryTree(), "binary tree invariant holds")
+		contract.Ensure(result.IsBinaryTree(), "binary tree invariant holds")
 	}()
 
 	return BinaryTree[T]{
