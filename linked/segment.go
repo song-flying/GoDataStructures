@@ -5,7 +5,7 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-func HasCycle[T any](l *Node[T]) bool {
+func HasCycle[T comparable](l *Node[T]) bool {
 	if l == nil {
 		return false
 	}
@@ -34,7 +34,7 @@ func HasCycle[T any](l *Node[T]) bool {
 	}
 }
 
-func next[T any](start *Node[T], n int) (result *Node[T]) {
+func next[T comparable](start *Node[T], n int) (result *Node[T]) {
 	contract.Require(n >= 0, "n is non-negative")
 	defer func() {
 		contract.Ensure(result == nil || isReachableWith(start, result, n), "result is reachable from start with n steps")
@@ -50,7 +50,7 @@ func next[T any](start *Node[T], n int) (result *Node[T]) {
 }
 
 // specification function
-func isReachableWith[T any](src, dst *Node[T], hops int) bool {
+func isReachableWith[T comparable](src, dst *Node[T], hops int) bool {
 	contract.Require(hops >= 0, "hops is non-negative")
 
 	curr := src
@@ -64,7 +64,7 @@ func isReachableWith[T any](src, dst *Node[T], hops int) bool {
 	return curr == dst
 }
 
-func IsSegment[T any](start, end *Node[T]) bool {
+func IsSegment[T comparable](start, end *Node[T]) bool {
 	contract.Require(!HasCycle(start), "start node leads to no cycle")
 
 	for curr := start; curr != nil; curr = curr.Next {
@@ -76,7 +76,7 @@ func IsSegment[T any](start, end *Node[T]) bool {
 	return start != nil && end == nil
 }
 
-func LengthOfSegment[T any](start, end *Node[T]) int {
+func LengthOfSegment[T comparable](start, end *Node[T]) int {
 	contract.Require(IsSegment(start, end), "start and end forms a segment")
 
 	count := 0
@@ -115,7 +115,7 @@ func IsSegmentSorted[T constraints.Ordered](start, end *Node[T]) bool {
 	return true
 }
 
-func IthSegment[T any](start *Node[T], i int) T {
+func IthSegment[T comparable](start *Node[T], i int) T {
 	contract.Require(0 <= i && i < LengthOfSegment(start, nil), "i is within bound")
 
 	curr := start

@@ -4,7 +4,7 @@ import "golang.org/x/exp/constraints"
 
 type CompareFn[T comparable] func(x, y T) int
 
-func NaturalOrdered[T constraints.Ordered]() CompareFn[T] {
+func NaturalOrder[T constraints.Ordered]() CompareFn[T] {
 	return func(x, y T) int {
 		switch {
 		case x < y:
@@ -17,4 +17,6 @@ func NaturalOrdered[T constraints.Ordered]() CompareFn[T] {
 	}
 }
 
-var IntComp = NaturalOrdered[int]()
+var IntComp = NaturalOrder[int]()
+
+var StringComp = NaturalOrder[string]()

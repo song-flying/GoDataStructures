@@ -5,7 +5,7 @@ import (
 	"github.com/song-flying/GoDataStructures/pkg/contract"
 )
 
-type LinkedQueue[T any] struct {
+type LinkedQueue[T comparable] struct {
 	front *linked.Node[T]
 	back  *linked.Node[T]
 }
@@ -15,7 +15,7 @@ func (q *LinkedQueue[T]) IsLinkedQueue() bool {
 	return q != nil && !linked.HasCycle(q.front) && linked.IsSegment(q.front, q.back)
 }
 
-func NewLinkedQueue[T any]() (result LinkedQueue[T]) {
+func NewLinkedQueue[T comparable]() (result LinkedQueue[T]) {
 	defer func() {
 		contract.Ensure(result.IsLinkedQueue(), "queue invariant holds")
 		contract.Ensure(result.IsEmpty(), "new queue is empty")

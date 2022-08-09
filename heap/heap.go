@@ -178,7 +178,12 @@ func (h *Heap[E]) isHeapExceptDown(exception int) bool {
 	return true
 }
 
-func (h *Heap[E]) selectChildToSwap(i int) int {
+func (h *Heap[E]) selectChildToSwap(i int) (result int) {
+	contract.Require(left(i) < h.next, "left child exists")
+	defer func() {
+		contract.Ensure(result < h.next, "result index is within bound")
+	}()
+
 	if right(i) >= h.next {
 		return left(i)
 	}
@@ -223,6 +228,7 @@ func (h *Heap[E]) Delete() (result E) {
 	return
 }
 
-func (h Heap[E]) Size() int {
+func (h *Heap[E]) Size() int {
+	contract.Require(h.IsHeap(), "heap invariant holds")
 	return h.next - 1
 }

@@ -181,7 +181,7 @@ func randRange(m, n int) int {
 }
 
 func IsDistinct[T comparable](a []T, comp order.CompareFn[T]) bool {
-	contract.Require(IsRangeSorted(a, 0, len(a), comp), "a is sorted")
+	contract.Require(IsSorted(a, comp), "a is sorted")
 
 	if len(a) <= 1 {
 		return true

@@ -5,7 +5,7 @@ import (
 	"github.com/song-flying/GoDataStructures/pkg/contract"
 )
 
-type LinkedStack[T any] struct {
+type LinkedStack[T comparable] struct {
 	top    *linked.Node[T]
 	bottom *linked.Node[T]
 }
@@ -15,7 +15,7 @@ func (s *LinkedStack[T]) IsLinkedStack() bool {
 	return s != nil && !linked.HasCycle(s.top) && linked.IsSegment(s.top, s.bottom)
 }
 
-func NewLinkedStack[T any]() (result LinkedStack[T]) {
+func NewLinkedStack[T comparable]() (result LinkedStack[T]) {
 	defer func() {
 		contract.Ensure(result.IsLinkedStack(), "stack invariant holds")
 		contract.Ensure(result.IsEmpty(), "new stack is empty")

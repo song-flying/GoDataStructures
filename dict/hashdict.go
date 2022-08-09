@@ -93,7 +93,7 @@ func (h *HashDict[K, V]) indexOfKey(key K) (result int) {
 	return abs(h.hashFn(key) % h.capacity)
 }
 
-func (h *HashDict[K, V]) Get(key K) (result V, found bool) {
+func (h *HashDict[K, V]) Get(key K) (result *V, found bool) {
 	contract.Require(h.IsHashDict(), "hash dict invariant holds")
 
 	index := h.indexOfKey(key)
@@ -101,11 +101,11 @@ func (h *HashDict[K, V]) Get(key K) (result V, found bool) {
 
 	for curr := l.Head; curr != nil; curr = curr.Next {
 		if curr.Data.Key == key {
-			return curr.Data.Value, true
+			return &curr.Data.Value, true
 		}
 	}
 
-	return *new(V), false
+	return new(V), false
 }
 
 func (h *HashDict[K, V]) Put(key K, value V) {
@@ -113,7 +113,7 @@ func (h *HashDict[K, V]) Put(key K, value V) {
 	defer func() {
 		contract.Ensure(h.IsHashDict(), "hash dict invariant holds")
 		v, ok := h.Get(key)
-		contract.Ensure(ok && v == value, "Get(key) returns value")
+		contract.Ensure(ok && *v == value, "Get(key) returns value")
 	}()
 
 	index := h.indexOfKey(key)
@@ -202,4 +202,18 @@ func (h *HashDict[K, V]) resize(newCapacity int) {
 			h.Put(curr.Data.Key, curr.Data.Value)
 		}
 	}
+}
+
+func (h *HashDict[K, V]) Keys() (result linked.List[K]) {
+	contract.Require(h.IsHashDict(), "hash invariant holds")
+
+	result = linked.NewEmptyList[K]()
+
+	for _, l := range h.table {
+		for curr := l.Head; curr != nil; curr = curr.Next {
+			result.Add(curr.Data.Key)
+		}
+	}
+
+	return
 }

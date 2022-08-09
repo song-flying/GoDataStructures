@@ -111,14 +111,14 @@ func (b *BSTDict[K, V]) lookup(root **tree.BinaryNode[entry[K, V]], key K) **tre
 	}
 }
 
-func (b *BSTDict[K, V]) Get(key K) (V, bool) {
+func (b *BSTDict[K, V]) Get(key K) (*V, bool) {
 	contract.Require(b.IsBSTDict(), "BST invariant holds")
 
 	node := b.lookup(&b.tree.Root, key)
 	if node != nil {
-		return (*node).Data.Value, true
+		return &(*node).Data.Value, true
 	}
-	return *new(V), false
+	return new(V), false
 }
 
 func (b *BSTDict[K, V]) ToArray(root *tree.BinaryNode[entry[K, V]]) (result []entry[K, V]) {
@@ -181,7 +181,7 @@ func (b *BSTDict[K, V]) Put(key K, value V) {
 	defer func() {
 		contract.Ensure(b.IsBSTDict(), "BST invariant holds")
 		v, ok := b.Get(key)
-		contract.Ensure(ok && value == v, "Get(key) returns value")
+		contract.Ensure(ok && value == *v, "Get(key) returns value")
 	}()
 
 	b.tree.Root = b.insert(b.tree.Root, key, value)

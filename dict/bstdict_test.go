@@ -10,25 +10,25 @@ func TestBSTDict(t *testing.T) {
 	dict := NewBSTDict[int, string](func(m, n int) int { return m - n })
 	v, ok := dict.Get(1)
 	assert.False(t, ok)
-	assert.Equal(t, "", v)
+	assert.Equal(t, "", *v)
 	assert.Equal(t, 0, dict.Size())
 
 	dict.Put(1, "a")
 	v, ok = dict.Get(1)
 	assert.True(t, ok)
-	assert.Equal(t, "a", v)
+	assert.Equal(t, "a", *v)
 	assert.Equal(t, 1, dict.Size())
 
 	dict.Put(2, "b")
 	v, ok = dict.Get(2)
 	assert.True(t, ok)
-	assert.Equal(t, "b", v)
+	assert.Equal(t, "b", *v)
 	assert.Equal(t, 2, dict.Size())
 
 	dict.Put(1, "aa")
 	v, ok = dict.Get(1)
 	assert.True(t, ok)
-	assert.Equal(t, "aa", v)
+	assert.Equal(t, "aa", *v)
 	assert.Equal(t, 2, dict.Size())
 
 	dict.Delete(2)
@@ -51,7 +51,7 @@ func TestBSTDict(t *testing.T) {
 		dict.Put(entries[i].Key, entries[i].Value)
 		v, ok := dict.Get(entries[i].Key)
 		assert.True(t, ok)
-		assert.Equal(t, entries[i].Value, v)
+		assert.Equal(t, entries[i].Value, *v)
 		assert.Equal(t, i+1, dict.Size())
 	}
 
