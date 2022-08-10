@@ -90,6 +90,11 @@ func (g *UndirectedGraph[V]) GetNeighbors(v V) (result *linked.List[V]) {
 	return neighbors
 }
 
+func (g *UndirectedGraph[V]) Vertices() linked.List[V] {
+	contract.Require(g.IsUndirectedGraph(), "graph invariant holds")
+	return g.adjDict.Keys()
+}
+
 func (g *UndirectedGraph[V]) Size() int {
 	contract.Require(g.IsUndirectedGraph(), "graph invariant holds")
 	return g.adjDict.Size()
