@@ -7,7 +7,7 @@ type (
 	}
 
 	Dict[K comparable, V comparable] interface {
-		Get(key K) (V, bool)
+		Get(key K) (*V, bool)
 		Put(key K, value V)
 		Delete(key K)
 		Size() int
