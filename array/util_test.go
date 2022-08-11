@@ -6,15 +6,6 @@ import (
 	"testing"
 )
 
-func TestCubes(t *testing.T) {
-	a := Cubes(10)
-	assert.Equal(t, 10, len(a))
-
-	assert.Panics(t, func() {
-		_ = Cubes(-1)
-	})
-}
-
 func TestCopyArray(t *testing.T) {
 	a := []int{1, 2, 3}
 

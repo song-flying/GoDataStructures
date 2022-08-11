@@ -7,25 +7,6 @@ import (
 	"time"
 )
 
-func Cubes(n int) (result []int) {
-	contract.Require(n >= 0, "n is non-negative")
-	defer func() {
-		contract.Ensure(len(result) == n, "len(result) = n")
-	}()
-
-	result = make([]int, n)
-
-	loopInv := func(i int) bool {
-		contract.Invariant(0 <= i && i <= n, "0 <= i <= n")
-		return true
-	}
-	for i := 0; loopInv(i) && i < n; i++ {
-		result[i] = i * i * i
-	}
-
-	return result
-}
-
 func CopyArray[T comparable](a []T, n int) (result []T) {
 	contract.Require(n == len(a), "len(a) = n")
 	defer func() {
