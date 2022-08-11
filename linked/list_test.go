@@ -20,4 +20,11 @@ func TestList(t *testing.T) {
 
 	l.Add(1)
 	assert.False(t, l.IsDistinct())
+
+	a := l.ToArray()
+	iter := l.Iterator()
+	for i := 0; iter.HasNext(); i++ {
+		assert.True(t, i < len(a))
+		assert.Equal(t, a[i], iter.Next())
+	}
 }

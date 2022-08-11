@@ -25,7 +25,7 @@ func TestDepthFirstSearchR(t *testing.T) {
 	assert.True(t, DepthFirstSearchR(&g, "A", "E"))
 }
 
-func TestDepthFirstSearch(t *testing.T) {
+func TestDepthFirstSearchX(t *testing.T) {
 	vertices := []string{"A", "B", "C", "D", "E", "F"}
 	g := graph.NewUndirectedGraph(vertices)
 
@@ -40,5 +40,24 @@ func TestDepthFirstSearch(t *testing.T) {
 	//   B----C----E
 	//  /
 	// D
+	assert.True(t, DepthFirstSearchX(&g, "A", "E"))
+}
+
+func TestDepthFirstSearch(t *testing.T) {
+	vertices := []string{"A", "B", "C", "D", "E", "F"}
+	g := graph.NewUndirectedGraph(vertices)
+
+	g.AddEdge("A", "C")
+	g.AddEdge("A", "B")
+	g.AddEdge("B", "D")
+	g.AddEdge("B", "C")
+	g.AddEdge("C", "E")
+	// g looks like:
+	//      A
+	//    /  \
+	//   B----C----E
+	//  /
+	// D
+
 	assert.True(t, DepthFirstSearch(&g, "A", "E"))
 }

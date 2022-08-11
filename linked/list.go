@@ -108,6 +108,30 @@ func (l *List[T]) ToArray() (result []T) {
 	return
 }
 
+type ListIterator[T comparable] struct {
+	curr *Node[T]
+}
+
+func NewListIterator[T comparable](l *List[T]) *ListIterator[T] {
+	return &ListIterator[T]{
+		l.Head,
+	}
+}
+
+func (it *ListIterator[T]) HasNext() bool {
+	return it.curr != nil
+}
+
+func (it *ListIterator[T]) Next() (result T) {
+	result = it.curr.Data
+	it.curr = it.curr.Next
+	return
+}
+
+func (l *List[T]) Iterator() *ListIterator[T] {
+	return NewListIterator[T](l)
+}
+
 func (l *List[T]) IsDistinct() bool {
 	return l.isDistinctFrom(l.Head)
 }
