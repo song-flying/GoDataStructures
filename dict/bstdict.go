@@ -14,9 +14,9 @@ type BSTDict[K comparable, V comparable] struct {
 	size      int
 }
 
-func (b *BSTDict[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], lower, upper *K) bool {
-	contract.Require(b.keyComp != nil, "comparison function is not nil")
-	contract.Require(lower == nil || upper == nil || b.keyComp(*lower, *upper) < 0, "lower < upper")
+func (t *BSTDict[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], lower, upper *K) bool {
+	contract.Require(t.keyComp != nil, "comparison function is not nil")
+	contract.Require(lower == nil || upper == nil || t.keyComp(*lower, *upper) < 0, "lower < upper")
 
 	if root == nil {
 		return true
@@ -24,12 +24,12 @@ func (b *BSTDict[K, V]) isOrdered(root *tree.BinaryNode[entry[K, V]], lower, upp
 
 	key := root.Data.Key
 
-	return (lower == nil || b.keyComp(*lower, key) < 0) && b.isOrdered(root.Left, lower, &key) &&
-		(upper == nil || b.keyComp(key, *upper) < 0) && b.isOrdered(root.Right, &key, upper)
+	return (lower == nil || t.keyComp(*lower, key) < 0) && t.isOrdered(root.Left, lower, &key) &&
+		(upper == nil || t.keyComp(key, *upper) < 0) && t.isOrdered(root.Right, &key, upper)
 }
 
-func (b *BSTDict[K, V]) isOrderedHasMinMax(root *tree.BinaryNode[entry[K, V]]) (minKey, maxKey *K, isOrdered bool) {
-	contract.Require(b.keyComp != nil, "comparison function is not nil")
+func (t *BSTDict[K, V]) isOrderedWithMinMax(root *tree.BinaryNode[entry[K, V]]) (minKey, maxKey *K, isOrdered bool) {
+	contract.Require(t.keyComp != nil, "comparison function is not nil")
 	contract.Require(root.IsBinaryTree(), "root is a binary tree")
 
 	if root == nil {
@@ -37,8 +37,8 @@ func (b *BSTDict[K, V]) isOrderedHasMinMax(root *tree.BinaryNode[entry[K, V]]) (
 	}
 
 	if root.Left != nil {
-		leftMinKey, leftMaxKey, leftIsOrdered := b.isOrderedHasMinMax(root.Left)
-		if !leftIsOrdered || b.keyComp(*leftMaxKey, root.Data.Key) >= 0 {
+		leftMinKey, leftMaxKey, leftIsOrdered := t.isOrderedWithMinMax(root.Left)
+		if !leftIsOrdered || t.keyComp(*leftMaxKey, root.Data.Key) >= 0 {
 			return nil, nil, false
 		} else {
 			minKey = leftMinKey
@@ -48,8 +48,8 @@ func (b *BSTDict[K, V]) isOrderedHasMinMax(root *tree.BinaryNode[entry[K, V]]) (
 	}
 
 	if root.Right != nil {
-		rightMinKey, rightMaxKey, rightIsOrdered := b.isOrderedHasMinMax(root.Right)
-		if !rightIsOrdered || b.keyComp(*rightMinKey, root.Data.Key) <= 0 {
+		rightMinKey, rightMaxKey, rightIsOrdered := t.isOrderedWithMinMax(root.Right)
+		if !rightIsOrdered || t.keyComp(*rightMinKey, root.Data.Key) <= 0 {
 			return nil, nil, false
 		} else {
 			maxKey = rightMaxKey
@@ -61,17 +61,21 @@ func (b *BSTDict[K, V]) isOrderedHasMinMax(root *tree.BinaryNode[entry[K, V]]) (
 	return minKey, maxKey, true
 }
 
-func (b *BSTDict[K, V]) hasSameEntries(a1, a2 []entry[K, V]) bool {
-	contract.Require(array.IsSorted(a1, b.entryComp) && array.IsDistinct(a1, b.entryComp), "a1 is sorted & distinct")
-	contract.Require(array.IsSorted(a2, b.entryComp) && array.IsDistinct(a2, b.entryComp), "a2 is sorted & distinct")
+func (t *BSTDict[K, V]) hasSameEntries(a1, a2 []entry[K, V]) bool {
+	contract.Require(array.IsSorted(a1, t.entryComp) && array.IsDistinct(a1, t.entryComp), "a1 is sorted & distinct")
+	contract.Require(array.IsSorted(a2, t.entryComp) && array.IsDistinct(a2, t.entryComp), "a2 is sorted & distinct")
 
 	return array.Same(a1, a2)
 }
 
 // IsBSTDict data structure invariant
-func (b *BSTDict[K, V]) IsBSTDict() bool {
-	_, _, isOrdered := b.isOrderedHasMinMax(b.tree.Root)
-	return b.tree != nil && b.keyComp != nil && b.entryComp != nil && b.tree.IsBinaryTree() && isOrdered
+func (t *BSTDict[K, V]) IsBSTDict() bool {
+	return t.tree != nil && t.IsBST(t.tree.Root)
+}
+
+func (t *BSTDict[K, V]) IsBST(root *tree.BinaryNode[entry[K, V]]) bool {
+	_, _, isOrdered := t.isOrderedWithMinMax(root)
+	return t.keyComp != nil && t.entryComp != nil && root.IsBinaryTree() && isOrdered
 }
 
 func NewBSTDict[K comparable, V comparable](comp order.CompareFn[K]) (result BSTDict[K, V]) {
@@ -93,104 +97,102 @@ func NewBSTDict[K comparable, V comparable](comp order.CompareFn[K]) (result BST
 	}
 }
 
-func (b *BSTDict[K, V]) lookup(root **tree.BinaryNode[entry[K, V]], key K) **tree.BinaryNode[entry[K, V]] {
-	contract.Require(b.IsBSTDict(), "BST invariant holds")
+func (t *BSTDict[K, V]) lookup(root **tree.BinaryNode[entry[K, V]], key K) **tree.BinaryNode[entry[K, V]] {
+	contract.Require(root != nil, "root pointer is not nil")
+	contract.Require(t.IsBST(*root), "BST invariant holds")
 
 	if *root == nil {
 		return nil
 	}
 
-	compResult := b.keyComp(key, (*root).Data.Key)
+	compResult := t.keyComp(key, (*root).Data.Key)
 	switch {
 	case compResult == 0:
 		return root
 	case compResult < 0:
-		return b.lookup(&(*root).Left, key)
+		return t.lookup(&(*root).Left, key)
 	default: //compResult > 0:
-		return b.lookup(&(*root).Right, key)
+		return t.lookup(&(*root).Right, key)
 	}
 }
 
-func (b *BSTDict[K, V]) Get(key K) (*V, bool) {
-	contract.Require(b.IsBSTDict(), "BST invariant holds")
+func (t *BSTDict[K, V]) Get(key K) (*V, bool) {
+	contract.Require(t.IsBSTDict(), "BST invariant holds")
 
-	node := b.lookup(&b.tree.Root, key)
+	node := t.lookup(&t.tree.Root, key)
 	if node != nil {
 		return &(*node).Data.Value, true
 	}
 	return new(V), false
 }
 
-func (b *BSTDict[K, V]) ToArray(root *tree.BinaryNode[entry[K, V]]) (result []entry[K, V]) {
-	contract.Require(b.IsBSTDict(), "BST invariant holds")
+func (t *BSTDict[K, V]) ToArray(root *tree.BinaryNode[entry[K, V]]) (result []entry[K, V]) {
+	contract.Require(t.IsBST(root), "BST invariant holds")
 	defer func() {
-		contract.Ensure(array.IsSorted(result, b.entryComp), "result entries are sorted")
+		contract.Ensure(array.IsSorted(result, t.entryComp), "result entries are sorted")
 	}()
 	if root == nil {
 		return
 	}
 
 	if root.Left != nil {
-		result = append(result, b.ToArray(root.Left)...)
+		result = append(result, t.ToArray(root.Left)...)
 	}
 	result = append(result, root.Data)
 	if root.Right != nil {
-		result = append(result, b.ToArray(root.Right)...)
+		result = append(result, t.ToArray(root.Right)...)
 	}
 
 	return
 }
 
-func (b *BSTDict[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value V) (result *tree.BinaryNode[entry[K, V]]) {
-	contract.Require(root.IsBinaryTree(), "root is valid binary tree")
-	_, _, isOrdered := b.isOrderedHasMinMax(root)
-	contract.Require(isOrdered, "root tree is ordered")
+func (t *BSTDict[K, V]) insert(root *tree.BinaryNode[entry[K, V]], key K, value V) (result *tree.BinaryNode[entry[K, V]]) {
+	contract.Require(t.IsBST(root), "BST invariant holds for root")
 	defer func(oldEntries []entry[K, V]) {
-		contract.Ensure(result.IsBinaryTree(), "new root is valid binary tree")
-		_, _, isOrdered := b.isOrderedHasMinMax(result)
-		contract.Ensure(isOrdered, "new root is ordered")
-		e := entry[K, V]{Key: key, Value: value}
-		newEntries := b.ToArray(result)
-		contract.Ensure(array.ContainsBy(e, newEntries, b.entryComp), "new root should contain new entry")
-		oldEntries = array.Filter(e, oldEntries, b.entryComp)
-		newEntries = array.Filter(e, newEntries, b.entryComp)
-		contract.Ensure(b.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root, except for new entry")
-	}(b.ToArray(root))
+		contract.Ensure(t.IsBST(result), "BST invariant holds for result")
+		newEntries := t.ToArray(result)
+		extract := func(e entry[K, V]) K { return e.Key }
+		contract.Ensure(array.Contains(newEntries, key, extract), "new root should contain new entry")
+		filter := func(e entry[K, V]) bool { return e.Key != key }
+		oldEntries = array.Filter(oldEntries, filter)
+		newEntries = array.Filter(newEntries, filter)
+		contract.Ensure(t.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root, except for new entry")
+	}(t.ToArray(root))
 
 	if root == nil {
 		node := tree.NewBinaryNode[entry[K, V]](entry[K, V]{Key: key, Value: value})
-		b.size++
+		t.size++
 		return &node
 	}
 
-	compResult := b.keyComp(key, root.Data.Key)
+	compResult := t.keyComp(key, root.Data.Key)
 	switch {
 	case compResult == 0:
 		root.Data.Value = value
 	case compResult < 0:
-		root.Left = b.insert(root.Left, key, value)
+		root.Left = t.insert(root.Left, key, value)
 	default: //compResult > 0:
-		root.Right = b.insert(root.Right, key, value)
+		root.Right = t.insert(root.Right, key, value)
 	}
 
 	return root
 }
 
-func (b *BSTDict[K, V]) Put(key K, value V) {
-	contract.Require(b.IsBSTDict(), "BST invariant holds")
+func (t *BSTDict[K, V]) Put(key K, value V) {
+	contract.Require(t.IsBSTDict(), "BST invariant holds")
 	defer func() {
-		contract.Ensure(b.IsBSTDict(), "BST invariant holds")
-		v, ok := b.Get(key)
+		contract.Ensure(t.IsBSTDict(), "BST invariant holds")
+		v, ok := t.Get(key)
 		contract.Ensure(ok && value == *v, "Get(key) returns value")
 	}()
 
-	b.tree.Root = b.insert(b.tree.Root, key, value)
+	t.tree.Root = t.insert(t.tree.Root, key, value)
 }
 
-func (b *BSTDict[K, V]) maxNode(root **tree.BinaryNode[entry[K, V]]) (result **tree.BinaryNode[entry[K, V]]) {
-	contract.Require(b.keyComp != nil && b.entryComp != nil, "comparison function is not nil")
+func (t *BSTDict[K, V]) maxFrom(root **tree.BinaryNode[entry[K, V]]) (result **tree.BinaryNode[entry[K, V]]) {
+	contract.Require(t.keyComp != nil && t.entryComp != nil, "comparison function is not nil")
 	contract.Require(root != nil && *root != nil, "root points to some node")
-	_, maxKey, isOrdered := b.isOrderedHasMinMax(*root)
+	_, maxKey, isOrdered := t.isOrderedWithMinMax(*root)
 	contract.Require(isOrdered, "root node is ordered")
 	defer func(maxKey *K) {
 		contract.Ensure(result != nil && (*result) != nil, "result points to some node")
@@ -205,10 +207,10 @@ func (b *BSTDict[K, V]) maxNode(root **tree.BinaryNode[entry[K, V]]) (result **t
 	return curr
 }
 
-func (b *BSTDict[K, V]) minNode(root **tree.BinaryNode[entry[K, V]]) (result **tree.BinaryNode[entry[K, V]]) {
-	contract.Require(b.keyComp != nil && b.entryComp != nil, "comparison function is not nil")
+func (t *BSTDict[K, V]) minFrom(root **tree.BinaryNode[entry[K, V]]) (result **tree.BinaryNode[entry[K, V]]) {
+	contract.Require(t.keyComp != nil && t.entryComp != nil, "comparison function is not nil")
 	contract.Require(root != nil && *root != nil, "root points to some node")
-	minKey, _, isOrdered := b.isOrderedHasMinMax(*root)
+	minKey, _, isOrdered := t.isOrderedWithMinMax(*root)
 	contract.Require(isOrdered, "root node is ordered")
 	defer func(minKey *K) {
 		contract.Ensure(result != nil && (*result) != nil, "result points to some node")
@@ -223,58 +225,56 @@ func (b *BSTDict[K, V]) minNode(root **tree.BinaryNode[entry[K, V]]) (result **t
 	return curr
 }
 
-func (b *BSTDict[K, V]) remove(pRoot **tree.BinaryNode[entry[K, V]]) {
+func (t *BSTDict[K, V]) remove(pRoot **tree.BinaryNode[entry[K, V]]) {
 	contract.Require(pRoot != nil && *pRoot != nil, "root is not nil")
-	contract.Require((*pRoot).IsBinaryTree(), "root is valid binary tree")
-	_, _, isOrdered := b.isOrderedHasMinMax(*pRoot)
-	contract.Require(isOrdered, "root is ordered")
-	defer func(targetEntry entry[K, V], oldEntries []entry[K, V]) {
-		contract.Ensure((*pRoot).IsBinaryTree(), "root is valid binary tree")
-		_, _, isOrdered := b.isOrderedHasMinMax(*pRoot)
-		contract.Ensure(isOrdered, "root is ordered")
-		newEntries := b.ToArray(*pRoot)
-		contract.Ensure(!array.ContainsBy(targetEntry, newEntries, b.entryComp), "root tree does not contain removed entry")
-		oldEntries = array.Filter(targetEntry, oldEntries, b.entryComp)
-		contract.Ensure(b.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root excluding removed entry")
-	}((*pRoot).Data, b.ToArray(*pRoot))
+	contract.Require(t.IsBST(*pRoot), "BST invariant holds for root")
+	defer func(key K, oldEntries []entry[K, V]) {
+		contract.Ensure(t.IsBST(*pRoot), "BST invariant holds for root")
+		newEntries := t.ToArray(*pRoot)
+		extract := func(e entry[K, V]) K { return e.Key }
+		contract.Ensure(!array.Contains(newEntries, key, extract), "root tree does not contain removed entry")
+		filter := func(e entry[K, V]) bool { return e.Key != key }
+		oldEntries = array.Filter(oldEntries, filter)
+		contract.Ensure(t.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root excluding removed entry")
+	}((*pRoot).Data.Key, t.ToArray(*pRoot))
 
 	switch {
 	case (*pRoot).Left == nil && (*pRoot).Right == nil:
 		*pRoot = nil
 		return
 	case (*pRoot).Left != nil:
-		pMax := b.maxNode(&(*pRoot).Left)
+		pMax := t.maxFrom(&(*pRoot).Left)
 		(*pRoot).Data = (*pMax).Data
 		*pMax = (*pMax).Left
 	case (*pRoot).Right != nil:
-		pMin := b.minNode(&(*pRoot).Right)
+		pMin := t.minFrom(&(*pRoot).Right)
 		(*pRoot).Data = (*pMin).Data
 		*pMin = (*pMin).Right
 	}
 }
 
-func (b *BSTDict[K, V]) Delete(key K) {
-	contract.Require(b.IsBSTDict(), "BST invariant holds")
+func (t *BSTDict[K, V]) Delete(key K) {
+	contract.Require(t.IsBSTDict(), "BST invariant holds")
 	defer func() {
-		contract.Ensure(b.IsBSTDict(), "BST invariant holds")
-		_, ok := b.Get(key)
+		contract.Ensure(t.IsBSTDict(), "BST invariant holds")
+		_, ok := t.Get(key)
 		contract.Ensure(!ok, "Get(key) returns no value")
 	}()
 
-	target := b.lookup(&b.tree.Root, key)
+	target := t.lookup(&t.tree.Root, key)
 	if target == nil {
 		return
 	}
 
-	b.remove(target)
-	b.size--
+	t.remove(target)
+	t.size--
 }
 
-func (b *BSTDict[K, V]) Size() (result int) {
-	contract.Require(b.IsBSTDict(), "BST invariant holds")
+func (t *BSTDict[K, V]) Size() (result int) {
+	contract.Require(t.IsBSTDict(), "BST invariant holds")
 	defer func() {
 		contract.Ensure(0 <= result, "result is non-negative")
 	}()
 
-	return b.size
+	return t.size
 }

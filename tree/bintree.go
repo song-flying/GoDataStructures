@@ -3,6 +3,7 @@ package tree
 import (
 	"encoding/json"
 	"github.com/song-flying/GoDataStructures/pkg/contract"
+	"github.com/song-flying/GoDataStructures/pkg/order"
 	"github.com/song-flying/GoDataStructures/stack"
 	"strconv"
 )
@@ -15,11 +16,12 @@ const (
 )
 
 type BinaryNode[T comparable] struct {
-	id    int
-	state int
-	Data  T
-	Left  *BinaryNode[T] `json:",omitempty"`
-	Right *BinaryNode[T] `json:",omitempty"`
+	id     int
+	state  int
+	Data   T
+	Left   *BinaryNode[T] `json:",omitempty"`
+	Right  *BinaryNode[T] `json:",omitempty"`
+	Height int            `json:",omitempty"`
 }
 
 func NewBinaryNode[T comparable](data T) BinaryNode[T] {
@@ -30,6 +32,22 @@ func NewBinaryNode[T comparable](data T) BinaryNode[T] {
 
 func Nil[T comparable]() *BinaryNode[T] {
 	return nil
+}
+
+func (n *BinaryNode[T]) GetHeight() int {
+	if n == nil {
+		return 0
+	}
+
+	return n.Height
+}
+
+func (n *BinaryNode[T]) SetHeight() {
+	if n == nil {
+		return
+	}
+
+	n.Height = order.Max(n.Left.GetHeight(), n.Right.GetHeight()) + 1
 }
 
 // IsBinaryTree data structure invariant

@@ -177,7 +177,7 @@ func IsDistinct[T comparable](a []T, comp order.CompareFn[T]) bool {
 	return true
 }
 
-func Contains[T comparable](x T, a []T, low, high int) bool {
+func RangeContains[T comparable](x T, a []T, low, high int) bool {
 	for i := low; i < high; i++ {
 		if x == a[i] {
 			return true
@@ -187,9 +187,11 @@ func Contains[T comparable](x T, a []T, low, high int) bool {
 	return false
 }
 
-func ContainsBy[T comparable](x T, a []T, comp order.CompareFn[T]) bool {
-	for _, y := range a {
-		if comp(x, y) == 0 {
+type ExtractFn[E comparable, K comparable] func(e E) (key K)
+
+func Contains[E comparable, K comparable](a []E, key K, extract ExtractFn[E, K]) bool {
+	for _, x := range a {
+		if extract(x) == key {
 			return true
 		}
 	}
@@ -197,11 +199,13 @@ func ContainsBy[T comparable](x T, a []T, comp order.CompareFn[T]) bool {
 	return false
 }
 
-func Filter[T comparable](x T, a []T, comp order.CompareFn[T]) []T {
+type FilterFn[T comparable] func(x T) bool
+
+func Filter[T comparable](a []T, filter FilterFn[T]) []T {
 	var b []T
-	for _, y := range a {
-		if comp(x, y) != 0 {
-			b = append(b, y)
+	for _, x := range a {
+		if filter(x) {
+			b = append(b, x)
 		}
 	}
 

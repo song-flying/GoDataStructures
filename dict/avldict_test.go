@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-func TestBSTDict(t *testing.T) {
-	dict := NewBSTDict[int, string](func(m, n int) int { return m - n })
+func TestAVLDict(t *testing.T) {
+	dict := NewAVLDict[int, string](func(m, n int) int { return m - n })
 
 	v, ok := dict.Get(1)
 	assert.False(t, ok)
@@ -60,12 +60,12 @@ func TestBSTDict(t *testing.T) {
 	}
 
 	array.Shuffle(entries)
-	t.Logf("entries to delete = %v", entries)
+	t.Logf("entries to remove = %v", entries)
 	for i, e := range entries {
 		dict.Delete(e.Key)
-		t.Logf("tree after deletion of key %d = %s", e.Key, dict.tree.String())
 		_, ok := dict.Get(e.Key)
 		assert.False(t, ok)
 		assert.Equal(t, len(a)-i-1, dict.Size())
+		t.Logf("tree after removal of key %d = %s", e.Key, dict.tree.String())
 	}
 }

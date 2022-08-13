@@ -31,7 +31,7 @@ func (h *Heap[E]) isHeapOrdered() bool {
 
 func (h *Heap[E]) Contains(element E) bool {
 	contract.Require(h.IsHeap(), "heap invariant holds")
-	return array.Contains(element, h.data, 1, h.next)
+	return array.RangeContains(element, h.data, 1, h.next)
 }
 
 // IsHeap data structure invariant

@@ -3,7 +3,6 @@ package set
 import (
 	"github.com/song-flying/GoDataStructures/array"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"testing"
 )
 
@@ -34,19 +33,23 @@ func TestBSTSet(t *testing.T) {
 
 	// Test repeated insertion and removal
 	a := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
+
 	array.Shuffle(a)
-	for i := 0; i < len(a); i++ {
-		set.Add(a[i])
-		assert.True(t, set.Contains(a[i]))
+	t.Logf("elements to insert = %v", a)
+	for i, e := range a {
+		set.Add(e)
+		t.Logf("tree after insertion of element %d = %s", e, set.tree.String())
+		assert.True(t, set.Contains(e))
 		assert.Equal(t, i+1, set.Size())
 	}
 
-	log.Printf("tree after insertion = %s", set.tree.String())
+	array.Shuffle(a)
+	t.Logf("elements to delete = %v", a)
+	for i, e := range a {
+		set.Delete(e)
+		t.Logf("tree after deletion of element %d = %s", e, set.tree.String())
+		assert.False(t, set.Contains(e))
+		assert.Equal(t, len(a)-i-1, set.Size())
 
-	for i := 1; i < 10; i++ {
-		set.Delete(i)
-		assert.False(t, set.Contains(i))
-		assert.Equal(t, 10-i-1, set.Size())
-		log.Printf("tree after removal of key %d = %s", i, set.tree.String())
 	}
 }
