@@ -63,9 +63,9 @@ func TestAVLDict(t *testing.T) {
 	t.Logf("entries to remove = %v", entries)
 	for i, e := range entries {
 		dict.Delete(e.Key)
+		t.Logf("tree after removal of key %d = %s", e.Key, dict.tree.String())
 		_, ok := dict.Get(e.Key)
 		assert.False(t, ok)
 		assert.Equal(t, len(a)-i-1, dict.Size())
-		t.Logf("tree after removal of key %d = %s", e.Key, dict.tree.String())
 	}
 }

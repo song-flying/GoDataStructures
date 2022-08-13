@@ -110,7 +110,7 @@ func NewAVLDict[K comparable, V comparable](comp order.CompareFn[K]) (result AVL
 }
 
 func (t *AVLDict[K, V]) lookup(root *tree.BinaryNode[entry[K, V]], key K) *tree.BinaryNode[entry[K, V]] {
-	contract.Require(t.IsAVLDict(), "AVL invariant holds")
+	contract.Require(t.IsAVL(root), "AVL invariant holds from root")
 
 	if root == nil {
 		return nil
@@ -207,7 +207,7 @@ func (t *AVLDict[K, V]) Put(key K, value V) {
 
 func (t *AVLDict[K, V]) removeFrom(root *tree.BinaryNode[entry[K, V]], key K) (result *tree.BinaryNode[entry[K, V]]) {
 	contract.Require(t.IsAVL(root), "AVL invariant holds")
-	defer func(targetEntry entry[K, V], oldEntries []entry[K, V]) {
+	defer func(oldEntries []entry[K, V]) {
 		contract.Ensure(t.IsAVL(result), "AVL invariant holds")
 		newEntries := t.ToArray(result)
 		extract := func(e entry[K, V]) K { return e.Key }
@@ -215,7 +215,7 @@ func (t *AVLDict[K, V]) removeFrom(root *tree.BinaryNode[entry[K, V]], key K) (r
 		filter := func(e entry[K, V]) bool { return e.Key != key }
 		oldEntries = array.Filter(oldEntries, filter)
 		contract.Ensure(t.hasSameEntries(oldEntries, newEntries), "new root should contain same entries as old root excluding removed entry")
-	}((*root).Data, t.ToArray(root))
+	}(t.ToArray(root))
 
 	if root == nil {
 		return nil

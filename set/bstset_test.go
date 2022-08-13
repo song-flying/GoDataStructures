@@ -50,6 +50,5 @@ func TestBSTSet(t *testing.T) {
 		t.Logf("tree after deletion of element %d = %s", e, set.tree.String())
 		assert.False(t, set.Contains(e))
 		assert.Equal(t, len(a)-i-1, set.Size())
-
 	}
 }

@@ -109,10 +109,10 @@ func (t *BSTSet[E]) lookup(root **tree.BinaryNode[E], element E) **tree.BinaryNo
 	}
 }
 
-func (t *BSTSet[E]) Contains(key E) bool {
+func (t *BSTSet[E]) Contains(element E) bool {
 	contract.Require(t.IsBSTSet(), "BST invariant holds")
 
-	node := t.lookup(&t.tree.Root, key)
+	node := t.lookup(&t.tree.Root, element)
 	return node != nil
 }
 
