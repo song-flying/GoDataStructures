@@ -373,3 +373,7 @@ func (t *AVLSet[E]) rebalance(root *tree.BinaryNode[E]) (result *tree.BinaryNode
 
 	return root
 }
+
+func (t *AVLSet[E]) IsEmpty() bool {
+	return t.Size() == 0
+}

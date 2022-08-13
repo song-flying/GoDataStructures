@@ -8,19 +8,18 @@ import (
 	"github.com/song-flying/GoDataStructures/set"
 )
 
-func BreathFirstSearch[V comparable](g *graph.UndirectedGraph[V], v V, w V) bool {
+func BreathFirstSearch[V comparable](g *graph.UndirectedGraph[V], src V, dst V) bool {
 	contract.Require(g != nil, "g is not nil")
-	contract.Require(g.Contains(v) && g.Contains(w), "g contains v and w")
+	contract.Require(g.Contains(src) && g.Contains(dst), "g contains src and dst")
 
 	marked := set.NewHashSet[V](g.Size(), hash.Universal[V], 1)
 	q := queue.NewLinkedQueue[V]()
-	marked.Add(v)
-	q.Enqueue(v)
-	// v is in queue => v is marked
+	marked.Add(src)
+	q.Enqueue(src)
 
 	for !q.IsEmpty() {
 		x := q.Dequeue()
-		if x == w {
+		if x == dst {
 			return true
 		}
 

@@ -122,7 +122,7 @@ func (h *HashSet[E]) Add(x E) {
 	}
 }
 
-func (h *HashSet[E]) Remove(x E) {
+func (h *HashSet[E]) Delete(x E) {
 	contract.Require(h.isHashSet(), "hash set invariant holds")
 	defer func() {
 		contract.Ensure(h.isHashSet(), "hash set invariant holds")
@@ -188,4 +188,8 @@ func (h *HashSet[E]) resize(newCapacity int) {
 			h.Add(curr.Data)
 		}
 	}
+}
+
+func (h *HashSet[E]) IsEmpty() bool {
+	return h.Size() == 0
 }

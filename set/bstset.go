@@ -266,3 +266,7 @@ func (t *BSTSet[E]) Size() (result int) {
 
 	return t.size
 }
+
+func (t *BSTSet[E]) IsEmpty() bool {
+	return t.Size() == 0
+}
