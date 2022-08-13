@@ -5,6 +5,7 @@ import (
 	"github.com/song-flying/GoDataStructures/linked"
 	"github.com/song-flying/GoDataStructures/pkg/contract"
 	"github.com/song-flying/GoDataStructures/pkg/hash"
+	"github.com/song-flying/GoDataStructures/set"
 )
 
 type UndirectedGraph[V comparable] struct {
@@ -107,4 +108,38 @@ func (g *UndirectedGraph[V]) Contains(v V) bool {
 
 	_, ok := g.adjDict.Get(v)
 	return ok
+}
+
+func (g *UndirectedGraph[V]) HasCycle() bool {
+	contract.Require(g.IsUndirectedGraph(), "graph invariant holds")
+
+	vertices := g.adjDict.Keys()
+	marked := set.NewHashSet[V](g.Size(), hash.Universal[V], 1)
+	for curr := vertices.Head; curr != nil; curr = curr.Next {
+		v := curr.Data
+		if !marked.Contains(v) {
+			if g.dfsHasCycle(v, v, &marked) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (g *UndirectedGraph[V]) dfsHasCycle(v, u V, marked *set.HashSet[V]) bool {
+	marked.Add(v)
+	neighbors := g.GetNeighbors(v)
+	for curr := neighbors.Head; curr != nil; curr = curr.Next {
+		w := curr.Data
+		if !marked.Contains(w) {
+			if g.dfsHasCycle(w, v, marked) {
+				return true
+			}
+		} else if w != u {
+			return true
+		}
+	}
+
+	return false
 }

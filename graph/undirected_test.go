@@ -30,6 +30,23 @@ func TestUndirectedGraph(t *testing.T) {
 	checkNeighbors(t, &g, order.StringComp, "D", []string{"C", "E", "F"})
 	checkNeighbors(t, &g, order.StringComp, "E", []string{"A", "D"})
 	checkNeighbors(t, &g, order.StringComp, "F", []string{"D"})
+
+	assert.True(t, g.HasCycle())
+
+	g = NewUndirectedGraph(vertices)
+	assert.Equal(t, len(vertices), g.Size())
+
+	g.AddEdge("A", "C")
+	g.AddEdge("B", "C")
+	g.AddEdge("C", "D")
+	g.AddEdge("D", "E")
+	g.AddEdge("D", "F")
+	// g looks like:
+	//    A      E
+	//     \     |
+	// B----C----D----F
+
+	assert.False(t, g.HasCycle())
 }
 
 func checkNeighbors[V comparable](t *testing.T, g *UndirectedGraph[V], comp order.CompareFn[V], v V, expected []V) {
