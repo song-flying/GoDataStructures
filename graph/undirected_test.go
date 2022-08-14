@@ -24,32 +24,15 @@ func TestUndirectedGraph(t *testing.T) {
 	//    A------E
 	//  /  \     |
 	// B----C----D----F
-	checkNeighbors(t, &g, order.StringComp, "A", []string{"B", "C", "E"})
-	checkNeighbors(t, &g, order.StringComp, "B", []string{"A", "C"})
-	checkNeighbors(t, &g, order.StringComp, "C", []string{"A", "B", "D"})
-	checkNeighbors(t, &g, order.StringComp, "D", []string{"C", "E", "F"})
-	checkNeighbors(t, &g, order.StringComp, "E", []string{"A", "D"})
-	checkNeighbors(t, &g, order.StringComp, "F", []string{"D"})
-
-	assert.True(t, g.HasCycle())
-
-	g = NewUndirectedGraph(vertices)
-	assert.Equal(t, len(vertices), g.Size())
-
-	g.AddEdge("A", "C")
-	g.AddEdge("B", "C")
-	g.AddEdge("C", "D")
-	g.AddEdge("D", "E")
-	g.AddEdge("D", "F")
-	// g looks like:
-	//    A      E
-	//     \     |
-	// B----C----D----F
-
-	assert.False(t, g.HasCycle())
+	checkNeighbors[string](t, &g, order.StringComp, "A", []string{"B", "C", "E"})
+	checkNeighbors[string](t, &g, order.StringComp, "B", []string{"A", "C"})
+	checkNeighbors[string](t, &g, order.StringComp, "C", []string{"A", "B", "D"})
+	checkNeighbors[string](t, &g, order.StringComp, "D", []string{"C", "E", "F"})
+	checkNeighbors[string](t, &g, order.StringComp, "E", []string{"A", "D"})
+	checkNeighbors[string](t, &g, order.StringComp, "F", []string{"D"})
 }
 
-func checkNeighbors[V comparable](t *testing.T, g *UndirectedGraph[V], comp order.CompareFn[V], v V, expected []V) {
+func checkNeighbors[V comparable](t *testing.T, g Graph[V], comp order.CompareFn[V], v V, expected []V) {
 	t.Helper()
 
 	neighbors := g.GetNeighbors(v).ToArray()

@@ -204,16 +204,16 @@ func (h *HashDict[K, V]) resize(newCapacity int) {
 	}
 }
 
-func (h *HashDict[K, V]) Keys() (result linked.List[K]) {
+func (h *HashDict[K, V]) Keys() (result *linked.List[K]) {
 	contract.Require(h.IsHashDict(), "hash invariant holds")
 
-	result = linked.NewEmptyList[K]()
+	keys := linked.NewEmptyList[K]()
 
 	for _, l := range h.table {
 		for curr := l.Head; curr != nil; curr = curr.Next {
-			result.Add(curr.Data.Key)
+			keys.Add(curr.Data.Key)
 		}
 	}
 
-	return
+	return &keys
 }

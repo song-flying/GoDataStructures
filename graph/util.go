@@ -5,6 +5,7 @@ import (
 	"github.com/song-flying/GoDataStructures/pkg/contract"
 	"github.com/song-flying/GoDataStructures/pkg/hash"
 	"github.com/song-flying/GoDataStructures/queue"
+	"github.com/song-flying/GoDataStructures/set"
 )
 
 func ShortestDistances[V comparable](g *UndirectedGraph[V], start V) (result dict.Dict[V, int]) {
@@ -37,4 +38,36 @@ func ShortestDistances[V comparable](g *UndirectedGraph[V], start V) (result dic
 	}
 
 	return &distances
+}
+
+func HasCycle[V comparable](g Graph[V]) bool {
+	vertices := g.Vertices().Iterator()
+	marked := set.NewHashSet[V](g.Size(), hash.Universal[V], 1)
+	for vertices.HasNext() {
+		v := vertices.Next()
+		if !marked.Contains(v) {
+			if dfsHasCycle[V](g, v, v, &marked) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func dfsHasCycle[V comparable](g Graph[V], v, u V, marked set.Set[V]) bool {
+	marked.Add(v)
+	neighbors := g.GetNeighbors(v).Iterator()
+	for neighbors.HasNext() {
+		w := neighbors.Next()
+		if !marked.Contains(w) {
+			if dfsHasCycle(g, w, v, marked) {
+				return true
+			}
+		} else if w != u {
+			return true
+		}
+	}
+
+	return false
 }
