@@ -40,13 +40,13 @@ func ShortestDistances[V comparable](g *UndirectedGraph[V], start V) (result dic
 	return &distances
 }
 
-func HasCycle[V comparable](g Graph[V]) bool {
+func HasCycleUndirected[V comparable](g *UndirectedGraph[V]) bool {
 	vertices := g.Vertices().Iterator()
 	marked := set.NewHashSet[V](g.Size(), hash.Universal[V], 1)
 	for vertices.HasNext() {
 		v := vertices.Next()
 		if !marked.Contains(v) {
-			if dfsHasCycle[V](g, v, v, &marked) {
+			if dfsHasCycleUndirected[V](g, v, v, &marked) {
 				return true
 			}
 		}
@@ -55,19 +55,54 @@ func HasCycle[V comparable](g Graph[V]) bool {
 	return false
 }
 
-func dfsHasCycle[V comparable](g Graph[V], v, u V, marked set.Set[V]) bool {
+func dfsHasCycleUndirected[V comparable](g *UndirectedGraph[V], v, from V, marked set.Set[V]) bool {
 	marked.Add(v)
 	neighbors := g.GetNeighbors(v).Iterator()
 	for neighbors.HasNext() {
 		w := neighbors.Next()
 		if !marked.Contains(w) {
-			if dfsHasCycle(g, w, v, marked) {
+			if dfsHasCycleUndirected(g, w, v, marked) {
 				return true
 			}
-		} else if w != u {
+		} else if w != from {
 			return true
 		}
 	}
+
+	return false
+}
+
+func HasCycleDirected[V comparable](g *DirectedGraph[V]) bool {
+	vertices := g.Vertices().Iterator()
+	marked := set.NewHashSet[V](g.Size(), hash.Universal[V], 1)
+	callStack := set.NewHashSet[V](g.Size(), hash.Universal[V], 1)
+	for vertices.HasNext() {
+		v := vertices.Next()
+		if !marked.Contains(v) {
+			if dfsHasCycleDirected[V](g, v, &marked, &callStack) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func dfsHasCycleDirected[V comparable](g *DirectedGraph[V], v V, marked set.Set[V], callStack set.Set[V]) bool {
+	callStack.Add(v)
+	marked.Add(v)
+
+	neighbors := g.GetNeighbors(v).Iterator()
+	for neighbors.HasNext() {
+		w := neighbors.Next()
+		if !marked.Contains(w) && dfsHasCycleDirected(g, w, marked, callStack) {
+			return true
+		} else if callStack.Contains(w) {
+			return true
+		}
+	}
+
+	callStack.Delete(v)
 
 	return false
 }
