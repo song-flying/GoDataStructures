@@ -78,7 +78,7 @@ func (t *BSTDict[K, V]) IsBST(root *tree.BinaryNode[entry[K, V]]) bool {
 	return t.keyComp != nil && t.entryComp != nil && root.IsBinaryTree() && isOrdered
 }
 
-func NewBSTDict[K comparable, V comparable](comp order.CompareFn[K]) (result BSTDict[K, V]) {
+func NewBSTDict[K comparable, V comparable](comp order.CompareFn[K]) (result *BSTDict[K, V]) {
 	contract.Require(comp != nil, "comparison function is not nil")
 	defer func() {
 		contract.Ensure(result.IsBSTDict(), "BST invariant holds")
@@ -89,8 +89,8 @@ func NewBSTDict[K comparable, V comparable](comp order.CompareFn[K]) (result BST
 		return comp(e1.Key, e2.Key)
 	}
 
-	return BSTDict[K, V]{
-		tree:      &t,
+	return &BSTDict[K, V]{
+		tree:      t,
 		keyComp:   comp,
 		entryComp: entryComp,
 		size:      0,
@@ -116,14 +116,14 @@ func (t *BSTDict[K, V]) lookup(root **tree.BinaryNode[entry[K, V]], key K) **tre
 	}
 }
 
-func (t *BSTDict[K, V]) Get(key K) (*V, bool) {
+func (t *BSTDict[K, V]) Get(key K) (V, bool) {
 	contract.Require(t.IsBSTDict(), "BST invariant holds")
 
 	node := t.lookup(&t.tree.Root, key)
 	if node != nil {
-		return &(*node).Data.Value, true
+		return (*node).Data.Value, true
 	}
-	return new(V), false
+	return *new(V), false
 }
 
 func (t *BSTDict[K, V]) ToArray(root *tree.BinaryNode[entry[K, V]]) (result []entry[K, V]) {
@@ -183,7 +183,7 @@ func (t *BSTDict[K, V]) Put(key K, value V) {
 	defer func() {
 		contract.Ensure(t.IsBSTDict(), "BST invariant holds")
 		v, ok := t.Get(key)
-		contract.Ensure(ok && value == *v, "Get(key) returns value")
+		contract.Ensure(ok && value == v, "Get(key) returns value")
 	}()
 
 	t.tree.Root = t.insert(t.tree.Root, key, value)

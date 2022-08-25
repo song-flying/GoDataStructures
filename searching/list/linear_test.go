@@ -18,7 +18,7 @@ func TestLinearSearch(t *testing.T) {
 	}
 
 	l := linked.NewList(head)
-	assert.Equal(t, nil, LinearSearch(2, l))
+	assert.Equal(t, linked.Nil[int](), LinearSearch(2, *l))
 
-	assert.Equal(t, head.Next, LinearSearch(3, l))
+	assert.Equal(t, head.Next, LinearSearch(3, *l))
 }

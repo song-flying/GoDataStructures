@@ -22,5 +22,5 @@ func TestBreathFirstSearch(t *testing.T) {
 	//  /  \     |
 	// B----C----D----F
 
-	assert.True(t, BreathFirstSearch(&g, "A", "F"))
+	assert.True(t, BreathFirstSearch(g, "A", "F"))
 }

@@ -24,10 +24,10 @@ func TestDirectedGraph(t *testing.T) {
 	// |   /\    /\
 	//\/    |     |
 	// B--->C---->D---->F
-	checkNeighbors[string](t, &g, order.StringComp, "A", []string{"B"})
-	checkNeighbors[string](t, &g, order.StringComp, "B", []string{"C"})
-	checkNeighbors[string](t, &g, order.StringComp, "C", []string{"A", "D"})
-	checkNeighbors[string](t, &g, order.StringComp, "D", []string{"E", "F"})
-	checkNeighbors[string](t, &g, order.StringComp, "E", []string{"A"})
-	checkNeighbors[string](t, &g, order.StringComp, "F", nil)
+	checkNeighbors[string](t, g, order.StringComp, "A", []string{"B"})
+	checkNeighbors[string](t, g, order.StringComp, "B", []string{"C"})
+	checkNeighbors[string](t, g, order.StringComp, "C", []string{"A", "D"})
+	checkNeighbors[string](t, g, order.StringComp, "D", []string{"E", "F"})
+	checkNeighbors[string](t, g, order.StringComp, "E", []string{"A"})
+	checkNeighbors[string](t, g, order.StringComp, "F", nil)
 }

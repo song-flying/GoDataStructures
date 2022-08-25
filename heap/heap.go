@@ -86,14 +86,14 @@ func (h *Heap[E]) swapUp(cIndex int) {
 	h.data[cIndex] = tmp
 }
 
-func NewHeap[E comparable](userCapacity int, lessFn order.CompareFn[E]) (result Heap[E]) {
+func NewHeap[E comparable](userCapacity int, lessFn order.CompareFn[E]) (result *Heap[E]) {
 	contract.Require(0 < userCapacity, "userCapacity is positive")
 	contract.Require(lessFn != nil, "priority function is not nil")
 	defer func() {
 		contract.Ensure(result.IsHeap(), "heap invariant holds")
 	}()
 
-	return Heap[E]{
+	return &Heap[E]{
 		next:     1,
 		capacity: userCapacity + 1,
 		data:     make([]E, userCapacity+1),

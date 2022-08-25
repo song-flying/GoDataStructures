@@ -21,31 +21,31 @@ func TestShortestDistances(t *testing.T) {
 	//  /  \      / \
 	// B----C----D---F
 
-	distances := ShortestDistances(&g, "A")
+	distances := ShortestDistances(g, "A")
 
 	distToA, ok := distances.Get("A")
 	assert.True(t, ok)
-	assert.Equal(t, 0, *distToA)
+	assert.Equal(t, 0, distToA)
 
 	distToB, ok := distances.Get("B")
 	assert.True(t, ok)
-	assert.Equal(t, 1, *distToB)
+	assert.Equal(t, 1, distToB)
 
 	distToC, ok := distances.Get("C")
 	assert.True(t, ok)
-	assert.Equal(t, 1, *distToC)
+	assert.Equal(t, 1, distToC)
 
 	distToD, ok := distances.Get("D")
 	assert.True(t, ok)
-	assert.Equal(t, 2, *distToD)
+	assert.Equal(t, 2, distToD)
 
 	distToE, ok := distances.Get("E")
 	assert.True(t, ok)
-	assert.Equal(t, 1, *distToE)
+	assert.Equal(t, 1, distToE)
 
 	distToF, ok := distances.Get("F")
 	assert.True(t, ok)
-	assert.Equal(t, 2, *distToF)
+	assert.Equal(t, 2, distToF)
 }
 
 func TestHasCycleUndirected(t *testing.T) {
@@ -61,10 +61,10 @@ func TestHasCycleUndirected(t *testing.T) {
 	//    A      E
 	//     \     |
 	// B----C----D----F
-	assert.False(t, HasCycleUndirected[string](&g))
+	assert.False(t, HasCycleUndirected[string](g))
 
 	g.AddEdge("E", "F")
-	assert.True(t, HasCycleUndirected[string](&g))
+	assert.True(t, HasCycleUndirected[string](g))
 }
 
 func TestHasCycleDirected(t *testing.T) {
@@ -80,7 +80,7 @@ func TestHasCycleDirected(t *testing.T) {
 	//  |     |
 	// \/     \/
 	//  C---->D
-	assert.False(t, HasCycleDirected[string](&g))
+	assert.False(t, HasCycleDirected[string](g))
 
 	g.AddEdge("D", "E")
 	g.AddEdge("E", "F")
@@ -90,5 +90,5 @@ func TestHasCycleDirected(t *testing.T) {
 	//  |     |      /\
 	// \/     \/     |
 	//  C---->D------E
-	assert.True(t, HasCycleDirected[string](&g))
+	assert.True(t, HasCycleDirected[string](g))
 }

@@ -15,7 +15,7 @@ func DepthFirstSearchR[V comparable](g *graph.UndirectedGraph[V], src V, dst V) 
 	contract.Require(g.Contains(src) && g.Contains(dst), "g contains src and dst")
 
 	marked := set.NewHashSet[V](g.Size(), hash.Universal[V], 1)
-	return DepthFirstSearchRHelper[V](g, src, dst, &marked)
+	return DepthFirstSearchRHelper[V](g, src, dst, marked)
 }
 
 func Some[T comparable](l *linked.List[T], pred func(T) bool) bool {

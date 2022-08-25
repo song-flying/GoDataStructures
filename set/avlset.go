@@ -89,7 +89,7 @@ func (t *AVLSet[E]) IsAVL(root *tree.BinaryNode[E]) bool {
 		root.IsBinaryTree() && isOrdered && t.isHeightOKFrom(root) && t.isBalancedFrom(root)
 }
 
-func NewAVLSet[E comparable](comp order.CompareFn[E]) (result AVLSet[E]) {
+func NewAVLSet[E comparable](comp order.CompareFn[E]) (result *AVLSet[E]) {
 	contract.Require(comp != nil, "comparison function is not nil")
 	defer func() {
 		contract.Ensure(result.IsAVLSet(), "AVL invariant holds")
@@ -97,8 +97,8 @@ func NewAVLSet[E comparable](comp order.CompareFn[E]) (result AVLSet[E]) {
 
 	t := tree.NewBinaryTree(tree.Nil[E]())
 
-	return AVLSet[E]{
-		tree: &t,
+	return &AVLSet[E]{
+		tree: t,
 		comp: comp,
 		size: 0,
 	}

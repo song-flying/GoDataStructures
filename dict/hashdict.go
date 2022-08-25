@@ -53,7 +53,7 @@ func (h *HashDict[K, V]) IsHashDict() bool {
 		0 < h.maxLoad && h.listOK() && h.hashOK() && h.sizeOK()
 }
 
-func NewHashDict[K comparable, V comparable](capacity int, hashFn HashFn[K], maxLoad int) (result HashDict[K, V]) {
+func NewHashDict[K comparable, V comparable](capacity int, hashFn HashFn[K], maxLoad int) (result *HashDict[K, V]) {
 	contract.Require(0 < capacity, "capacity is positive")
 	contract.Require(0 < maxLoad, "maxLoad is positive")
 	contract.Require(hashFn != nil, "hash function is not nil")
@@ -62,7 +62,7 @@ func NewHashDict[K comparable, V comparable](capacity int, hashFn HashFn[K], max
 	}()
 
 	table := make([]linked.List[entry[K, V]], capacity)
-	return HashDict[K, V]{
+	return &HashDict[K, V]{
 		size:     0,
 		capacity: capacity,
 		table:    table,
@@ -93,7 +93,7 @@ func (h *HashDict[K, V]) indexOfKey(key K) (result int) {
 	return abs(h.hashFn(key) % h.capacity)
 }
 
-func (h *HashDict[K, V]) Get(key K) (result *V, found bool) {
+func (h *HashDict[K, V]) Get(key K) (result V, found bool) {
 	contract.Require(h.IsHashDict(), "hash dict invariant holds")
 
 	index := h.indexOfKey(key)
@@ -101,11 +101,11 @@ func (h *HashDict[K, V]) Get(key K) (result *V, found bool) {
 
 	for curr := l.Head; curr != nil; curr = curr.Next {
 		if curr.Data.Key == key {
-			return &curr.Data.Value, true
+			return curr.Data.Value, true
 		}
 	}
 
-	return new(V), false
+	return *new(V), false
 }
 
 func (h *HashDict[K, V]) Put(key K, value V) {
@@ -113,7 +113,7 @@ func (h *HashDict[K, V]) Put(key K, value V) {
 	defer func() {
 		contract.Ensure(h.IsHashDict(), "hash dict invariant holds")
 		v, ok := h.Get(key)
-		contract.Ensure(ok && *v == value, "Get(key) returns value")
+		contract.Ensure(ok && v == value, "Get(key) returns value")
 	}()
 
 	index := h.indexOfKey(key)
@@ -215,5 +215,5 @@ func (h *HashDict[K, V]) Keys() (result *linked.List[K]) {
 		}
 	}
 
-	return &keys
+	return keys
 }

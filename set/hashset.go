@@ -43,7 +43,7 @@ func (h *HashSet[E]) isHashSet() bool {
 		len(h.table) == h.capacity && 0 < h.maxLoad && h.hashOK() && h.sizeOK()
 }
 
-func NewHashSet[E comparable](capacity int, hashFn HashFn[E], maxLoad int) (result HashSet[E]) {
+func NewHashSet[E comparable](capacity int, hashFn HashFn[E], maxLoad int) (result *HashSet[E]) {
 	contract.Require(0 < capacity, "capacity is positive")
 	contract.Require(0 < maxLoad, "maxLoad is positive")
 	contract.Require(hashFn != nil, "hash function is not nil")
@@ -52,7 +52,7 @@ func NewHashSet[E comparable](capacity int, hashFn HashFn[E], maxLoad int) (resu
 	}()
 
 	table := make([]linked.List[E], capacity)
-	return HashSet[E]{
+	return &HashSet[E]{
 		size:     0,
 		capacity: capacity,
 		table:    table,

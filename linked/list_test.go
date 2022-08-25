@@ -27,4 +27,9 @@ func TestList(t *testing.T) {
 		assert.True(t, i < len(a))
 		assert.Equal(t, a[i], iter.Next())
 	}
+
+	t.Logf("l = %s", l.String())
+
+	l.Reverse()
+	t.Logf("l = %s", l.String())
 }

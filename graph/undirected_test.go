@@ -24,12 +24,12 @@ func TestUndirectedGraph(t *testing.T) {
 	//    A------E
 	//  /  \     |
 	// B----C----D----F
-	checkNeighbors[string](t, &g, order.StringComp, "A", []string{"B", "C", "E"})
-	checkNeighbors[string](t, &g, order.StringComp, "B", []string{"A", "C"})
-	checkNeighbors[string](t, &g, order.StringComp, "C", []string{"A", "B", "D"})
-	checkNeighbors[string](t, &g, order.StringComp, "D", []string{"C", "E", "F"})
-	checkNeighbors[string](t, &g, order.StringComp, "E", []string{"A", "D"})
-	checkNeighbors[string](t, &g, order.StringComp, "F", []string{"D"})
+	checkNeighbors[string](t, g, order.StringComp, "A", []string{"B", "C", "E"})
+	checkNeighbors[string](t, g, order.StringComp, "B", []string{"A", "C"})
+	checkNeighbors[string](t, g, order.StringComp, "C", []string{"A", "B", "D"})
+	checkNeighbors[string](t, g, order.StringComp, "D", []string{"C", "E", "F"})
+	checkNeighbors[string](t, g, order.StringComp, "E", []string{"A", "D"})
+	checkNeighbors[string](t, g, order.StringComp, "F", []string{"D"})
 }
 
 func checkNeighbors[V comparable](t *testing.T, g Graph[V], comp order.CompareFn[V], v V, expected []V) {

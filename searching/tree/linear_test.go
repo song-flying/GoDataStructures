@@ -7,7 +7,7 @@ import (
 )
 
 func TestLinearSearch(t *testing.T) {
-	bTree := tree.NewBinaryTree[int](&tree.BinaryNode[int]{
+	binTree := tree.NewBinaryTree[int](&tree.BinaryNode[int]{
 		Data: 5,
 		Left: &tree.BinaryNode[int]{
 			Data: 4,
@@ -29,8 +29,8 @@ func TestLinearSearch(t *testing.T) {
 		},
 	})
 
-	assert.Nil(t, LinearSearch(1, &bTree))
-	assert.Nil(t, LinearSearch(8, &bTree))
-	assert.NotNil(t, LinearSearch(6, &bTree))
-	assert.NotNil(t, LinearSearch(2, &bTree))
+	assert.Nil(t, LinearSearch(1, binTree))
+	assert.Nil(t, LinearSearch(8, binTree))
+	assert.NotNil(t, LinearSearch(6, binTree))
+	assert.NotNil(t, LinearSearch(2, binTree))
 }

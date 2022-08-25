@@ -15,14 +15,14 @@ func (q *LinkedQueue[T]) IsLinkedQueue() bool {
 	return q != nil && !linked.HasCycle(q.front) && linked.IsSegment(q.front, q.back)
 }
 
-func NewLinkedQueue[T comparable]() (result LinkedQueue[T]) {
+func NewLinkedQueue[T comparable]() (result *LinkedQueue[T]) {
 	defer func() {
 		contract.Ensure(result.IsLinkedQueue(), "queue invariant holds")
 		contract.Ensure(result.IsEmpty(), "new queue is empty")
 	}()
 
 	dummy := linked.NewDummyNode[T]()
-	return LinkedQueue[T]{
+	return &LinkedQueue[T]{
 		front: &dummy,
 		back:  &dummy,
 	}

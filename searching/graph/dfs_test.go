@@ -22,7 +22,7 @@ func TestDepthFirstSearchR(t *testing.T) {
 	//  /
 	// D
 
-	assert.True(t, DepthFirstSearchR(&g, "A", "E"))
+	assert.True(t, DepthFirstSearchR(g, "A", "E"))
 }
 
 func TestDepthFirstSearchX(t *testing.T) {
@@ -40,7 +40,7 @@ func TestDepthFirstSearchX(t *testing.T) {
 	//   B----C----E
 	//  /
 	// D
-	assert.True(t, DepthFirstSearchX(&g, "A", "E"))
+	assert.True(t, DepthFirstSearchX(g, "A", "E"))
 }
 
 func TestDepthFirstSearch(t *testing.T) {
@@ -59,5 +59,5 @@ func TestDepthFirstSearch(t *testing.T) {
 	//  /
 	// D
 
-	assert.True(t, DepthFirstSearch(&g, "A", "E"))
+	assert.True(t, DepthFirstSearch(g, "A", "E"))
 }

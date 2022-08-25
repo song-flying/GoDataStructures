@@ -8,7 +8,7 @@ import (
 )
 
 type DirectedGraph[V comparable] struct {
-	adjDict dict.HashDict[V, linked.List[V]]
+	adjDict *dict.HashDict[V, *linked.List[V]]
 }
 
 func (g *DirectedGraph[V]) hasVertex(v V) bool {
@@ -33,18 +33,18 @@ func (g *DirectedGraph[V]) IsDirectedGraph() bool {
 	return true
 }
 
-func NewDirectedGraph[V comparable](vertices []V) (result DirectedGraph[V]) {
+func NewDirectedGraph[V comparable](vertices []V) (result *DirectedGraph[V]) {
 	contract.Require(len(vertices) > 0, "vertices is not empty")
 	defer func() {
 		contract.Ensure(result.IsDirectedGraph(), "graph invariant holds")
 	}()
 
-	adjDict := dict.NewHashDict[V, linked.List[V]](1, hash.Universal[V], 1)
+	adjDict := dict.NewHashDict[V, *linked.List[V]](1, hash.Universal[V], 1)
 	for _, v := range vertices {
 		adjDict.Put(v, linked.NewEmptyList[V]())
 	}
 
-	return DirectedGraph[V]{
+	return &DirectedGraph[V]{
 		adjDict: adjDict,
 	}
 }
@@ -114,5 +114,5 @@ func (g *DirectedGraph[V]) Reverse() Graph[V] {
 		}
 	}
 
-	return &gReverse
+	return gReverse
 }

@@ -90,7 +90,7 @@ func (t *AVLDict[K, V]) IsAVL(root *tree.BinaryNode[entry[K, V]]) bool {
 		root.IsBinaryTree() && isOrdered && t.isHeightOKFrom(root) && t.isBalancedFrom(root)
 }
 
-func NewAVLDict[K comparable, V comparable](comp order.CompareFn[K]) (result AVLDict[K, V]) {
+func NewAVLDict[K comparable, V comparable](comp order.CompareFn[K]) (result *AVLDict[K, V]) {
 	contract.Require(comp != nil, "comparison function is not nil")
 	defer func() {
 		contract.Ensure(result.IsAVLDict(), "AVL invariant holds")
@@ -101,8 +101,8 @@ func NewAVLDict[K comparable, V comparable](comp order.CompareFn[K]) (result AVL
 		return comp(e1.Key, e2.Key)
 	}
 
-	return AVLDict[K, V]{
-		tree:      &t,
+	return &AVLDict[K, V]{
+		tree:      t,
 		keyComp:   comp,
 		entryComp: entryComp,
 		size:      0,
@@ -127,14 +127,14 @@ func (t *AVLDict[K, V]) lookup(root *tree.BinaryNode[entry[K, V]], key K) *tree.
 	}
 }
 
-func (t *AVLDict[K, V]) Get(key K) (*V, bool) {
+func (t *AVLDict[K, V]) Get(key K) (V, bool) {
 	contract.Require(t.IsAVLDict(), "AVL invariant holds")
 
 	node := t.lookup(t.tree.Root, key)
 	if node != nil {
-		return &node.Data.Value, true
+		return node.Data.Value, true
 	}
-	return new(V), false
+	return *new(V), false
 }
 
 func (t *AVLDict[K, V]) ToArray(root *tree.BinaryNode[entry[K, V]]) (result []entry[K, V]) {
@@ -199,7 +199,7 @@ func (t *AVLDict[K, V]) Put(key K, value V) {
 	defer func() {
 		contract.Ensure(t.IsAVLDict(), "AVL invariant holds")
 		v, ok := t.Get(key)
-		contract.Ensure(ok && value == *v, "Get(key) returns value")
+		contract.Ensure(ok && value == v, "Get(key) returns value")
 	}()
 
 	t.tree.Root = t.insertFrom(t.tree.Root, key, value)

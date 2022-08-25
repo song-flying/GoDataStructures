@@ -75,7 +75,7 @@ func (t *BSTSet[E]) IsBST(root *tree.BinaryNode[E]) bool {
 	return t.comp != nil && root.IsBinaryTree() && isOrdered
 }
 
-func NewBSTSet[E comparable](comp order.CompareFn[E]) (result BSTSet[E]) {
+func NewBSTSet[E comparable](comp order.CompareFn[E]) (result *BSTSet[E]) {
 	contract.Require(comp != nil, "comparison function is not nil")
 	defer func() {
 		contract.Ensure(result.IsBSTSet(), "BST invariant holds")
@@ -83,8 +83,8 @@ func NewBSTSet[E comparable](comp order.CompareFn[E]) (result BSTSet[E]) {
 
 	t := tree.NewBinaryTree(tree.Nil[E]())
 
-	return BSTSet[E]{
-		tree: &t,
+	return &BSTSet[E]{
+		tree: t,
 		comp: comp,
 		size: 0,
 	}

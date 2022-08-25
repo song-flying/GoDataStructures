@@ -15,14 +15,14 @@ func (s *LinkedStack[T]) IsLinkedStack() bool {
 	return s != nil && !linked.HasCycle(s.top) && linked.IsSegment(s.top, s.bottom)
 }
 
-func NewLinkedStack[T comparable]() (result LinkedStack[T]) {
+func NewLinkedStack[T comparable]() (result *LinkedStack[T]) {
 	defer func() {
 		contract.Ensure(result.IsLinkedStack(), "stack invariant holds")
 		contract.Ensure(result.IsEmpty(), "new stack is empty")
 	}()
 
 	dummy := linked.NewDummyNode[T]()
-	return LinkedStack[T]{
+	return &LinkedStack[T]{
 		top:    &dummy,
 		bottom: &dummy,
 	}

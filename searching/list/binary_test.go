@@ -7,7 +7,7 @@ import (
 )
 
 func TestBinarySearch(t *testing.T) {
-	n := &linked.Node[int]{
+	n := linked.Node[int]{
 		Data: 1,
 		Next: &linked.Node[int]{
 			Data: 3,
@@ -20,22 +20,22 @@ func TestBinarySearch(t *testing.T) {
 		},
 	}
 
-	l := linked.NewList[int](n)
+	l := linked.NewList[int](&n)
 
-	i := BinarySearch(5, &l)
+	i := BinarySearch(5, l)
 	assert.Equal(t, 2, i)
 
-	i = BinarySearch(4, &l)
+	i = BinarySearch(4, l)
 	assert.Equal(t, -1, i)
 
 	l = linked.NewList[int](&linked.Node[int]{Data: 42})
-	i = BinarySearch(1, &l)
+	i = BinarySearch(1, l)
 	assert.Equal(t, -1, i)
 
-	i = BinarySearch(42, &l)
+	i = BinarySearch(42, l)
 	assert.Equal(t, 0, i)
 
 	l = linked.NewEmptyList[int]()
-	i = BinarySearch(1, &l)
+	i = BinarySearch(1, l)
 	assert.Equal(t, -1, i)
 }

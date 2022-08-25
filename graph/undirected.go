@@ -8,7 +8,7 @@ import (
 )
 
 type UndirectedGraph[V comparable] struct {
-	adjDict dict.HashDict[V, linked.List[V]]
+	adjDict *dict.HashDict[V, *linked.List[V]]
 }
 
 func (g *UndirectedGraph[V]) hasVertex(v V) bool {
@@ -33,18 +33,18 @@ func (g *UndirectedGraph[V]) IsUndirectedGraph() bool {
 	return true
 }
 
-func NewUndirectedGraph[V comparable](vertices []V) (result UndirectedGraph[V]) {
+func NewUndirectedGraph[V comparable](vertices []V) (result *UndirectedGraph[V]) {
 	contract.Require(len(vertices) > 0, "vertices is not empty")
 	defer func() {
 		contract.Ensure(result.IsUndirectedGraph(), "graph invariant holds")
 	}()
 
-	adjDict := dict.NewHashDict[V, linked.List[V]](1, hash.Universal[V], 1)
+	adjDict := dict.NewHashDict[V, *linked.List[V]](1, hash.Universal[V], 1)
 	for _, v := range vertices {
 		adjDict.Put(v, linked.NewEmptyList[V]())
 	}
 
-	return UndirectedGraph[V]{
+	return &UndirectedGraph[V]{
 		adjDict: adjDict,
 	}
 }
@@ -117,5 +117,5 @@ func (g *UndirectedGraph[V]) Reverse() Graph[V] {
 		}
 	}
 
-	return &gReverse
+	return gReverse
 }

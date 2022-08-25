@@ -82,10 +82,10 @@ func TestNext(t *testing.T) {
 	n2.Next = &n3
 	n3.Next = &n4
 
-	assert.Equal(t, n1, next(&n1, 0))
-	assert.Equal(t, n2, next(&n1, 1))
-	assert.Equal(t, n3, next(&n1, 2))
-	assert.Equal(t, n4, next(&n1, 3))
+	assert.Equal(t, &n1, next(&n1, 0))
+	assert.Equal(t, &n2, next(&n1, 1))
+	assert.Equal(t, &n3, next(&n1, 2))
+	assert.Equal(t, &n4, next(&n1, 3))
 	assert.Equal(t, Nil[int](), next(&n1, 4))
 	assert.Equal(t, Nil[int](), next(&n4, 2))
 }

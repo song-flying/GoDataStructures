@@ -30,14 +30,14 @@ func ShortestDistances[V comparable](g *UndirectedGraph[V], start V) (result dic
 		for curr := neighbors.Head; curr != nil; curr = curr.Next {
 			w := curr.Data
 			distW, _ := distances.Get(w)
-			if *distW == -1 {
+			if distW == -1 {
 				q.Enqueue(w)
-				distances.Put(w, *distV+1)
+				distances.Put(w, distV+1)
 			}
 		}
 	}
 
-	return &distances
+	return distances
 }
 
 func HasCycleUndirected[V comparable](g *UndirectedGraph[V]) bool {
@@ -46,7 +46,7 @@ func HasCycleUndirected[V comparable](g *UndirectedGraph[V]) bool {
 	for vertices.HasNext() {
 		v := vertices.Next()
 		if !marked.Contains(v) {
-			if dfsHasCycleUndirected[V](g, v, v, &marked) {
+			if dfsHasCycleUndirected[V](g, v, v, marked) {
 				return true
 			}
 		}
@@ -79,7 +79,7 @@ func HasCycleDirected[V comparable](g *DirectedGraph[V]) bool {
 	for vertices.HasNext() {
 		v := vertices.Next()
 		if !marked.Contains(v) {
-			if dfsHasCycleDirected[V](g, v, &marked, &callStack) {
+			if dfsHasCycleDirected[V](g, v, marked, callStack) {
 				return true
 			}
 		}

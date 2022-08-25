@@ -210,12 +210,12 @@ func (t *BinaryTree[T]) IsBinaryTree() bool {
 	return t.Root.IsBinaryTree()
 }
 
-func NewBinaryTree[T comparable](root *BinaryNode[T]) (result BinaryTree[T]) {
+func NewBinaryTree[T comparable](root *BinaryNode[T]) (result *BinaryTree[T]) {
 	defer func() {
 		contract.Ensure(result.IsBinaryTree(), "binary tree invariant holds")
 	}()
 
-	return BinaryTree[T]{
+	return &BinaryTree[T]{
 		Root: root,
 	}
 }

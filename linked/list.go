@@ -1,7 +1,9 @@
 package linked
 
 import (
+	"fmt"
 	"github.com/song-flying/GoDataStructures/pkg/contract"
+	"strings"
 )
 
 type Node[T comparable] struct {
@@ -38,16 +40,20 @@ func (l *List[T]) IsList() bool {
 	return l.Head.IsList()
 }
 
-func NewEmptyList[T comparable]() (result List[T]) {
-	contract.Ensure(result.IsList(), "list invariant holds")
+func NewEmptyList[T comparable]() (result *List[T]) {
+	defer func() {
+		contract.Ensure(result.IsList(), "list invariant holds")
+	}()
 
-	return List[T]{}
+	return &List[T]{}
 }
 
-func NewList[T comparable](head *Node[T]) (result List[T]) {
-	contract.Ensure(result.IsList(), "list invariant holds")
+func NewList[T comparable](head *Node[T]) (result *List[T]) {
+	defer func() {
+		contract.Ensure(result.IsList(), "list invariant holds")
+	}()
 
-	return List[T]{
+	return &List[T]{
 		Head: head,
 	}
 }
@@ -144,4 +150,28 @@ func (l *List[T]) isDistinctFrom(start *Node[T]) bool {
 	}
 
 	return !l.containsFrom(start.Next, start.Data) && l.isDistinctFrom(start.Next)
+}
+
+func (l *List[T]) Reverse() {
+	contract.Require(l.IsList(), "list invariant holds")
+
+	var newHead *Node[T] = nil
+	var node *Node[T]
+	for node = l.Head; node != nil; {
+		nextNode := node.Next
+		node.Next = newHead
+		newHead = node
+		node = nextNode
+	}
+
+	l.Head = newHead
+}
+
+func (l *List[T]) String() string {
+	var elementStrings []string
+	for node := l.Head; node != nil; node = node.Next {
+		elementStrings = append(elementStrings, fmt.Sprintf("%v", node.Data))
+	}
+
+	return fmt.Sprintf("[%s]", strings.Join(elementStrings, " -> "))
 }
